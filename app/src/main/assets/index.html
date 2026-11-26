@@ -306,6 +306,7 @@ function vProf(){
   <div><label for="pK">Своя норма ккал</label><input id="pK" inputmode="numeric" data-pf="kcal" placeholder="авто" value="${p.kcal>0?esc(p.kcal):''}"></div></div></div>
   <div class="card"><h3>Твоя норма</h3><div class="kp"><div><b>${T.kcal}</b><span class="sm mut">ккал/день</span></div><div><b>${T.tdee}</b><span class="sm mut">витрата</span></div><div><b>${T.bmr}</b><span class="sm mut">базовий обмін</span></div></div>
   <div class="kp"><div><b style="color:var(--p)">${T.prot} г</b><span class="sm mut">білки</span></div><div><b style="color:var(--f)">${T.fat} г</b><span class="sm mut">жири</span></div><div><b style="color:var(--c)">${T.carb} г</b><span class="sm mut">вуглеводи</span></div></div></div>
+  ${window.claude?'':`<div class="card"><h3>ШІ (Gemini)</h3><div class="sm mut">${gkey()?'Ключ збережено тільки на цьому телефоні.':'Встав API-ключ з aistudio.google.com — тоді запрацює вкладка «ШІ» при додаванні їжі.'}</div><div class="row" style="margin-top:10px"><input id="gk" type="password" autocomplete="off" placeholder="${gkey()?'Новий ключ':'API-ключ'}"><button class="btn" data-savekey="1">Зберегти</button></div>${gkey()?'<button class="btn sec w" style="margin-top:8px" data-delkey="1">Видалити ключ</button>':''}</div>`}
   <div class="card"><h3>Мої продукти</h3>${S.custom.map(f=>`<div class="item"><div class="grow"><div class="nm">${esc(f.n)}</div><div class="sm mut">${r0(f.k)} ккал · Б ${r1(f.p)} Ж ${r1(f.f)} В ${r1(f.c)} на 100 г</div></div><button class="x" aria-label="Видалити" data-delcustom="${esc(f.id)}">${I.x}</button></div>`).join('')||'<div class="empty">Додаються через «Додати → Своє»</div>'}</div>
   <div class="sync" id="sync" style="margin-top:12px">${syncHTML()}</div>`;
 }
@@ -318,11 +319,27 @@ $('#sheetBg').onclick=closeSheet;
 
 // їжа
 let FM='b',FT='find',P=null,AIres=[],aiCtl=null,sampleFn=undefined;
+let GK='';try{GK=localStorage.getItem('forma.gkey')||''}catch(e){}
+const gkey=()=>GK;
+function setGkey(k){GK=k;try{k?localStorage.setItem('forma.gkey',k):localStorage.removeItem('forma.gkey')}catch(e){}}
+async function gemini(prompt,opts){
+  let last=null;
+  for(const m of ['gemini-flash-latest','gemini-2.5-flash','gemini-2.0-flash']){
+    let r;try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent',{method:'POST',signal:opts&&opts.signal,headers:{'Content-Type':'application/json','x-goog-api-key':GK},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.2,responseMimeType:'application/json'}})})}
+    catch(e){if(e&&e.name==='AbortError')throw e;throw{code:'offline'}}
+    if(r.status===404){last={code:'err'};continue}
+    if(!r.ok)throw{code:r.status===429?'rate_limited':(r.status===400||r.status===401||r.status===403)?'bad_key':'err'};
+    const j=await r.json();const t=(j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[]).map(p=>p.text||'').join('');
+    return{text:t};
+  }
+  throw last||{code:'err'};
+}
+async function getAI(){const s=await getSample();if(s)return s;return GK?gemini:null}
 async function getSample(){if(sampleFn!==undefined)return sampleFn;try{sampleFn=window.claude&&claude.use?await claude.use('sample'):null}catch(e){sampleFn=null}return sampleFn}
 function recents(){const seen=new Set(),out=[];Object.keys(S.days).sort().reverse().forEach(k=>S.days[k].food.forEach(f=>{if(out.length<12&&!seen.has(f.n)&&f.g>0){seen.add(f.n);out.push({n:f.n,k:f.k/f.g*100,p:f.p/f.g*100,f:f.f/f.g*100,c:f.c/f.g*100,u:f.g,un:'як минулого'})}}));return out}
 function foodSheet(){
   const mealChips=`<div class="chips">${MEALS.map(([m,n])=>`<button class="chip ${FM===m?'on':''}" data-fm="${m}">${n}</button>`).join('')}</div>`;
-  const tabs=`<div class="tabs">${[['find','Пошук'],['own','Своє'],['ai','ШІ']].filter(t=>t[0]!=='ai'||window.claude).map(t=>`<button class="${FT===t[0]?'on':''}" data-ft="${t[0]}">${t[1]}</button>`).join('')}</div>`;
+  const tabs=`<div class="tabs">${[['find','Пошук'],['own','Своє'],['ai','ШІ']].map(t=>`<button class="${FT===t[0]?'on':''}" data-ft="${t[0]}">${t[1]}</button>`).join('')}</div>`;
   let h='';
   if(FT==='find')h=`<input id="fq" placeholder="Пошук: гречка, яйце, банан…" autocomplete="off"><div class="res" id="fres"></div>`;
   if(FT==='own')h=`<h3 style="margin-top:6px">Новий продукт (на 100 г)</h3><label for="cN">Назва</label><input id="cN"><div class="g4"><div><label for="cK">Ккал</label><input id="cK" inputmode="decimal"></div><div><label for="cP">Б</label><input id="cP" inputmode="decimal"></div><div><label for="cF">Ж</label><input id="cF" inputmode="decimal"></div><div><label for="cC">В</label><input id="cC" inputmode="decimal"></div></div>
@@ -393,7 +410,9 @@ document.addEventListener('click',e=>{
   if(ds.close){closeSheet();return}
   if(ds.fm){FM=ds.fm;sbd.querySelectorAll('[data-fm]').forEach(x=>x.classList.toggle('on',x.dataset.fm===FM));return}
   if(ds.fm2){FM=ds.fm2;sbd.querySelectorAll('[data-fm2]').forEach(x=>x.classList.toggle('on',x.dataset.fm2===FM));return}
-  if(ds.ft){FT=ds.ft;foodSheet();if(FT==='ai')getSample().then(s=>{if(!s&&$('#aiR')){$('#aiB').disabled=true;$('#aiR').innerHTML='<div class="empty">ШІ тут недоступний — скористайся пошуком або «Своє».</div>'}});return}
+  if(ds.ft){FT=ds.ft;foodSheet();if(FT==='ai')getAI().then(s=>{if(!s&&$('#aiR')){$('#aiB').disabled=true;$('#aiR').innerHTML=window.claude?'<div class="empty">ШІ тут недоступний — скористайся пошуком або «Своє».</div>':'<div class="empty">Щоб ШІ працював, встав ключ Gemini в Профілі.</div><button class="btn sec w" data-tab="prof">Відкрити профіль</button>'}});return}
+  if(ds.savekey){const k=$('#gk').value.trim();if(k.length<20){toast('Ключ закороткий');return}setGkey(k);toast('Ключ збережено');render();return}
+  if(ds.delkey){setGkey('');toast('Ключ видалено');render();return}
   if(ds.pick!==undefined){const f=window._fl[+ds.pick];if(f&&!f.hdr)portion(f);return}
   if(ds.g){$('#pg').value=r0(+ds.g);pv();return}
   if(ds.back){foodSheet();return}
@@ -439,8 +458,8 @@ document.addEventListener('change',e=>{
 
 async function runAI(){
   const txt=$('#aiT').value.trim();if(!txt){toast('Опиши, що з’їв');return}
-  const s=await getSample();const out=$('#aiR'),btn=$('#aiB');
-  if(!s){out.innerHTML='<div class="empty">ШІ тут недоступний.</div>';return}
+  const s=await getAI();const out=$('#aiR'),btn=$('#aiB');
+  if(!s){out.innerHTML='<div class="empty">'+(window.claude?'ШІ тут недоступний.':'Встав ключ Gemini в Профілі.')+'</div>';return}
   btn.disabled=true;btn.textContent='Рахую…';out.innerHTML='';
   aiCtl&&aiCtl.abort();aiCtl=new AbortController();
   const prompt=`Ти нутриціолог. Користувач описав, що з'їв. Розбий опис на окремі продукти або страви, для кожного оціни реалістичну вагу порції в грамах і калорійність та БЖВ саме на цю порцію (типові українські порції). Відповідай ТІЛЬКИ JSON-масивом без пояснень, у форматі: [{"n":"назва українською","g":грами,"k":ккал,"p":білки_г,"f":жири_г,"c":вуглеводи_г}]. Числа — без одиниць.\nОпис: ${txt}`;
@@ -454,7 +473,7 @@ async function runAI(){
       <div class="row sp" style="margin-top:8px"><b>Разом</b><span class="k num">${r0(tot.k)} ккал</span></div><div class="hint">Це приблизна оцінка ШІ.</div></div><button class="btn w" style="margin-top:10px" data-aiadd="1">Додати вибране</button>`}
   }catch(e){
     if(e&&e.name==='AbortError')return;
-    out.innerHTML=`<div class="empty">${e&&e.code==='rate_limited'?'Забагато запитів, спробуй за хвилину.':e&&e.code==='not_granted'?'Доступ до ШІ не надано.':'Не вийшло порахувати, спробуй ще раз.'}</div>`;
+    out.innerHTML=`<div class="empty">${e&&e.code==='rate_limited'?'Забагато запитів, спробуй за хвилину.':e&&e.code==='not_granted'?'Доступ до ШІ не надано.':e&&e.code==='bad_key'?'Ключ не підходить — перевір його в Профілі.':e&&e.code==='offline'?'Немає інтернету.':'Не вийшло порахувати, спробуй ще раз.'}</div>`;
   }finally{if(btn){btn.disabled=false;btn.textContent='Порахувати'}}
 }
 
