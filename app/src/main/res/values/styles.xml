@@ -2,6 +2,6 @@
     <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/bg</item>
     </style>
-    <color name="bg">#121314</color>
+    <color name="bg">#0b0c0e</color>
     <color name="icon_bg">#E2462B</color>
 </resources>
