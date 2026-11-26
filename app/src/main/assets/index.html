@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Форма — треня і харчування</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: коротко, як табло в залі — цифра головна, решта тихо
+   IDEA: щоденник атлета + табло калорій
+   PICTURE: велике кільце «залишилось ккал» з макро-смугами
+   COLOUR and TYPE: гумове покриття залу, крейда, червоний диск; Archivo для цифр, Manrope для тексту
+   LAYOUT: одна колонка під телефон, нижня навігація, шторки знизу */
+:root{color-scheme:light dark;
+--bg:light-dark(#f3f1ed,#121314);--card:light-dark(#ffffff,#1c1d1f);--card2:light-dark(#ebe8e3,#26272a);
+--ink:light-dark(#141414,#f1efea);--mut:light-dark(#6b6862,#9a9893);--line:light-dark(#dedad3,#2e2f33);
+--acc:#e2462b;--acc2:light-dark(#c43a22,#ff6a4d);--p:#3f8cff;--f:#f2b632;--c:#2fb38a;--ok:#2fb38a}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:16px/1.45 Manrope,system-ui,sans-serif;overflow-x:clip;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+.wrap{max-width:520px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) 14px 16px}
+h1,h2,h3,.num{font-family:Archivo,system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+h1{font-size:32px;line-height:1.05;font-weight:800}
+h2{font-size:20px;font-weight:700}
+h3{font-size:16px;font-weight:700}
+.mut{color:var(--mut)}.sm{font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:12px}
+.row{display:flex;align-items:center;gap:10px}.sp{justify-content:space-between}.wrapr{flex-wrap:wrap}
+.grow{flex:1}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.btn{min-height:44px;padding:10px 16px;border-radius:14px;background:var(--acc);color:#fff;font-weight:700}
+.btn.sec{background:var(--card2);color:var(--ink)}
+.btn.w{width:100%}
+.ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--card2)}
+.ico svg{width:20px;height:20px}
+input,select,textarea{font:16px Manrope,system-ui,sans-serif;color:var(--ink);background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:44px;width:100%}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{min-height:38px;padding:8px 12px;border-radius:999px;background:var(--card2);font-size:14px;font-weight:600}
+.chip.on{background:var(--ink);color:var(--bg)}
+/* top */
+.datebar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.datebar .t{text-align:center}
+.sync{font-size:12px;color:var(--mut);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mut)}
+.dot.ok{background:var(--ok)}.dot.err{background:var(--acc)}
+/* ring */
+.hero{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:center}
+.ring{position:relative;width:150px;height:150px}
+.ring svg{width:150px;height:150px;transform:rotate(-90deg)}
+.ring .in{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ring .big{font-family:Archivo;font-weight:800;font-size:clamp(28px,8vw,34px);line-height:1}
+.stat{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}
+.stat b{font-family:Archivo;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{height:8px;border-radius:9px;background:var(--card2);overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;border-radius:9px}
+.macros{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.macros .sm b{color:var(--ink)}
+/* lists */
+.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.item .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .k{font-family:Archivo;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.x{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--mut);flex:none}
+.x:hover{background:var(--card2)}
+.add{display:flex;align-items:center;gap:6px;color:var(--acc2);font-weight:700;min-height:40px;margin-top:4px}
+.water{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.water i{width:22px;height:28px;border-radius:4px 4px 8px 8px;border:2px solid var(--p);display:block}
+.water i.on{background:var(--p)}
+.banner{background:var(--acc);color:#fff;border-radius:18px;padding:14px;margin-top:12px}
+.banner .btn{background:#fff;color:var(--acc);margin-top:8px}
+.empty{color:var(--mut);font-size:14px;padding:6px 0}
+/* nav */
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:600;color:var(--mut);min-height:52px;justify-content:center}
+nav button svg{width:22px;height:22px}
+nav button.on{color:var(--acc2)}
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:10;display:flex;align-items:flex-end;justify-content:center}
+.sheet.hidden{display:none}
+.sheet .bg{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.sheet .bd{position:relative;background:var(--bg);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+@media(prefers-reduced-motion:reduce){.sheet .bd{animation:none}}
+.grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 10px}
+.tabs{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);background:var(--card2);border-radius:12px;padding:3px;margin:10px 0}
+.tabs button{min-height:40px;border-radius:10px;font-weight:700;font-size:14px}
+.tabs button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.res{max-height:48vh;overflow:auto}
+.res .item{cursor:pointer}
+.big2{font-family:Archivo;font-weight:800;font-size:40px;line-height:1}
+.set{display:grid;grid-template-columns:28px minmax(0,1fr) minmax(0,1fr) 36px;gap:6px;align-items:center;margin-top:6px}
+.set input{min-height:40px;padding:8px;text-align:center}
+.ex{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:10px}
+.hint{font-size:12px;color:var(--mut);margin-top:2px}
+.fig{position:relative;height:180px;margin-top:8px}.fig svg{position:absolute;inset:0;width:100%;height:100%}
+.kp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.kp div{background:var(--card2);border-radius:12px;padding:10px}
+.kp b{font-family:Archivo;font-size:20px;display:block}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:20;font-size:14px}
+@media(max-width:380px){.hero{grid-template-columns:120px minmax(0,1fr)}.ring,.ring svg{width:120px;height:120px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="view"></div>
+<nav><div class="in" id="nav"></div></nav>
+<div class="sheet hidden" id="sheet"><div class="bg" id="sheetBg"></div><div class="bd" id="sheetBd"></div></div>
+<div class="toast" id="toast" hidden></div>
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r0=n=>Math.round(+n||0), r1=n=>Math.round((+n||0)*10)/10, num=v=>{const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:0};
+const pad=n=>String(n).padStart(2,'0');
+const dkey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>dkey(new Date());
+const toDate=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(k,n)=>{const d=toDate(k);d.setDate(d.getDate()+n);return dkey(d)};
+const fmtD=k=>toDate(k).toLocaleDateString('uk-UA',{weekday:'short',day:'numeric',month:'short'});
+const nid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+const I={
+home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 8 8"/></svg>',
+gym:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>',
+chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M6 15l4-5 3 3 5-7"/></svg>',
+user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+l:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>',
+r:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>',
+x:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+plus:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+minus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></svg>'
+};
+// продукти: назва, ккал, Б, Ж, В на 100 г, вага 1 шт, назва шт
+const FOODS=[
+['Гречка варена',110,4.2,1.1,21.3],['Рис варений',130,2.7,0.3,28],['Вівсянка (суха)',352,12.3,6.1,59.5,40,'порція'],['Вівсянка на воді',88,3,1.7,15],['Макарони варені',158,5.8,0.9,31],['Булгур варений',83,3.1,0.2,18.6],['Картопля варена',82,2,0.4,17],['Картопляне пюре',106,2.5,4.2,14.7],['Картопля фрі',312,3.4,15,41],
+['Хліб білий',265,9,3.2,49,30,'скибка'],['Хліб житній',210,6.6,1.2,40,30,'скибка'],['Лаваш',275,9,1.2,56],['Хлібці',366,11,3,72,10,'шт'],
+['Яйце куряче',155,12.7,11,0.7,55,'шт'],['Омлет',184,9.6,15.4,1.9],['Куряча грудка варена',165,31,3.6,0],['Куряча грудка смажена',190,30,7,0.5],['Курячі стегна',210,18,15,0],['Свинина нежирна',242,27,14,0],['Яловичина варена',254,25.8,16.8,0],['Фарш свино-яловичий',254,17,20,0],['Котлета',260,15,18,9,90,'шт'],['Індичка філе',135,29,1.7,0],['Печінка куряча',140,20,5.9,0.7],
+['Лосось',208,20,13,0],['Хек',86,16.6,2.2,0],['Тунець консервований',116,25.5,1,0],['Креветки варені',99,24,0.3,0.2],
+['Ковбаса варена',257,12,22.8,1.5],['Сосиска',266,11,24,1.6,50,'шт'],['Сало',770,2.4,85,0],
+['Сир кисломолочний 5%',121,17.2,5,1.8],['Сир кисломолочний 0%',71,16.5,0,1.3],['Сир твердий',356,25,28,0,20,'скибка'],['Моцарела',280,22,21,2],['Молоко 2.5%',52,2.8,2.5,4.7,250,'склянка'],['Кефір 1%',40,3,1,4,250,'склянка'],['Йогурт грецький 2%',73,10,2,4],['Сметана 15%',162,2.6,15,3],['Масло вершкове',748,0.5,82.5,0.8,10,'шматок'],['Олія соняшникова',899,0,99.9,0,10,'ст.л.'],
+['Банан',89,1.1,0.3,23,120,'шт'],['Яблуко',52,0.3,0.2,14,180,'шт'],['Апельсин',47,0.9,0.1,12,160,'шт'],['Мандарин',53,0.8,0.3,13,80,'шт'],['Виноград',69,0.7,0.2,18],['Груша',57,0.4,0.1,15,170,'шт'],
+['Огірок',15,0.7,0.1,3.6,120,'шт'],['Помідор',18,0.9,0.2,3.9,120,'шт'],['Капуста',27,1.8,0.1,4.7],['Морква',41,0.9,0.2,9.6,80,'шт'],['Броколі',34,2.8,0.4,6.6],['Салат овочевий з олією',90,1,7,5],['Авокадо',160,2,14.7,8.5,150,'шт'],['Квасоля варена',127,8.7,0.5,22.8],
+['Борщ',50,2.3,2.4,5,300,'тарілка'],['Суп курячий',36,2.5,1.2,3.5,300,'тарілка'],['Вареники з картоплею',150,4,3.5,26],['Пельмені',275,12,13,27],['Голубці',140,7,8,10,150,'шт'],['Плов',190,7,8,23],['Млинці',230,6,9,31,60,'шт'],['Сирники',220,15,9,20,60,'шт'],
+['Піца',266,11,10,33,110,'шматок'],['Шаурма',220,10,11,20,350,'шт'],['Бургер',254,13,12,24,220,'шт'],['Чіпси',536,6.6,34,53],
+['Волоські горіхи',654,15,65,14],['Арахіс',567,26,49,16],['Арахісова паста',588,25,50,20,15,'ст.л.'],['Мед',304,0.3,0,82,12,'ч.л.'],['Цукор',398,0,0,99.8,5,'ч.л.'],['Шоколад молочний',535,7.7,30,59],['Печиво',450,7,18,66,10,'шт'],
+['Протеїн (сухий)',380,75,6,8,30,'скуп'],['Гейнер (сухий)',390,20,3,70,100,'порція'],['Протеїновий батончик',350,30,10,35,50,'шт'],
+['Кава з молоком',35,1.6,1.5,3.5,250,'чашка'],['Сік апельсиновий',45,0.7,0.2,10.4,250,'склянка'],['Кола',42,0,0,10.6,330,'банка'],['Енергетик',45,0,0,11,250,'банка'],['Пиво',43,0.5,0,3.6,500,'пляшка']
+].map(a=>({n:a[0],k:a[1],p:a[2],f:a[3],c:a[4],u:a[5]||0,un:a[6]||''}));
+const TPL=[
+{n:'Full Body',ex:['Присідання зі штангою','Жим лежачи','Тяга штанги в нахилі','Жим гантелей сидячи','Планка']},
+{n:'Груди + трицепс',ex:['Жим лежачи','Жим гантелей на похилій','Розведення гантелей','Віджимання на брусах','Французький жим']},
+{n:'Спина + біцепс',ex:['Підтягування','Тяга верхнього блоку','Тяга штанги в нахилі','Тяга гантелі однією рукою','Підйом штанги на біцепс']},
+{n:'Ноги + плечі',ex:['Присідання зі штангою','Румунська тяга','Жим ногами','Випади з гантелями','Жим штанги стоячи','Махи гантелями в сторони']},
+{n:'Вдома без заліза',ex:['Віджимання','Присідання','Випади','Планка','Скручування','Берпі']},
+{n:'Кардіо',ex:['Біг']}];
+const EXALL=[...new Set(TPL.flatMap(t=>t.ex).concat(['Станова тяга','Жим гантелей лежачи','Кросовер','Пуловер','Шраги','Розгинання ніг','Згинання ніг','Підйом на носки','Молотки','Розгинання на блоці','Скакалка','Велотренажер','Ходьба','Плавання','Футбол']))];
+const MEALS=[['b','Сніданок'],['l','Обід'],['d','Вечеря'],['s','Перекуси']];
+const ACT=[[1.2,'Мінімум (сиджу)'],[1.375,'Легка (1–3 трені)'],[1.55,'Середня (3–5 трень)'],[1.725,'Висока (6–7 трень)'],[1.9,'Дуже висока (фізична робота)']];
+const GOALS=[['lose','Схуднути'],['keep','Тримати вагу'],['gain','Набрати масу']];
+
+// ---------- дані ----------
+const LS='forma.v1';
+let S={profile:{set:false,sex:'m',age:20,h:178,w:75,act:1.55,goal:'keep',water:8,kcal:0},custom:[],weights:[],days:{}};
+try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);S=Object.assign(S,o);S.profile=Object.assign({set:false,sex:'m',age:20,h:178,w:75,act:1.55,goal:'keep',water:8,kcal:0},o.profile||{})}}catch(e){}
+const EMPTY=()=>({food:[],ex:[],water:0});
+const day=k=>S.days[k]||EMPTY();
+const dayW=k=>S.days[k]||(S.days[k]=EMPTY());
+let coll=null,dirty=new Set(),inflight=new Set(),timer=null,chain=Promise.resolve(),sync='local';
+const saveLocal=()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}};
+function touch(key){saveLocal();if(!coll)return;dirty.add(key);clearTimeout(timer);timer=setTimeout(flush,600)}
+function body(key){if(key==='main')return{profile:S.profile,custom:S.custom,weights:S.weights};const d=S.days[key.slice(2)]||EMPTY();return{food:d.food,ex:d.ex,water:d.water}}
+function flush(){
+  const keys=[...dirty];dirty.clear();
+  keys.forEach(k=>{const b=JSON.parse(JSON.stringify(body(k)));inflight.add(k);
+    chain=chain.then(()=>coll.doc(k).set(b)).then(()=>{inflight.delete(k);setSync('ok')},e=>{inflight.delete(k);
+      if(e&&e.code==='unavailable'){dirty.add(k);clearTimeout(timer);timer=setTimeout(flush,4000)}
+      else{setSync('err');if(e&&e.code==='quota_exceeded')toast('Сховище заповнене')}})});
+}
+function applyDocs(docs){
+  let ch=false;
+  docs.forEach(d=>{const k=d.id;if(dirty.has(k)||inflight.has(k)||!d.exists)return;const v=JSON.parse(JSON.stringify(d.data()||{}));
+    if(k==='main'){const cur=JSON.stringify(body('main'));if(v.profile)S.profile=Object.assign(S.profile,v.profile);S.custom=Array.isArray(v.custom)?v.custom:[];S.weights=Array.isArray(v.weights)?v.weights:[];if(cur!==JSON.stringify(body('main')))ch=true}
+    else if(k.startsWith('d-')){const dk=k.slice(2),cur=JSON.stringify(body(k));S.days[dk]={food:Array.isArray(v.food)?v.food:[],ex:Array.isArray(v.ex)?v.ex:[],water:+v.water||0};if(cur!==JSON.stringify(body(k)))ch=true}});
+  if(ch)saveLocal();return ch;
+}
+function setSync(s){sync=s;const el=$('#sync');if(el)el.innerHTML=syncHTML()}
+function syncHTML(){const m={local:['','Тільки на цьому пристрої'],load:['','Синхронізація…'],slow:['err','Немає зв’язку, дані можуть бути старі'],ok:['ok','Збережено в акаунті'],err:['err','Помилка збереження']}[sync];return`<span class="dot ${m[0]}"></span>${m[1]}`}
+(async()=>{
+  if(!window.claude||!claude.use)return;
+  try{
+    const [db,u]=await Promise.all([claude.use('db'),claude.use('user')]);if(!db||!u)return;
+    const id=await u.id();if(!id)return;
+    coll=db.collection('data/users/'+id);setSync('load');
+    const t=setTimeout(()=>setSync('slow'),10000);
+    const snap=await coll.get();clearTimeout(t);
+    if(snap.empty){if(S.profile.set||S.weights.length||Object.keys(S.days).length){dirty.add('main');Object.keys(S.days).forEach(k=>{const d=S.days[k];if(d.food.length||d.ex.length||d.water)dirty.add('d-'+k)});flush()}}
+    else if(applyDocs(snap.docs))render();
+    setSync('ok');
+    coll.onSnapshot(s=>{if(s.metadata.hasPendingWrites)return;if(applyDocs(s.docs))render()},()=>setSync('err'));
+  }catch(e){coll=null;setSync('local')}
+})();
+
+// ---------- розрахунки ----------
+const curW=()=>{const w=[...S.weights].sort((a,b)=>a.d<b.d?-1:1);return w.length?w[w.length-1].kg:S.profile.w};
+function targets(){
+  const p=S.profile,w=curW();
+  const bmr=10*w+6.25*p.h-5*p.age+(p.sex==='m'?5:-161);const tdee=bmr*p.act;
+  const f={lose:.82,keep:1,gain:1.1}[p.goal]||1;
+  let kcal=p.kcal>0?p.kcal:Math.round(tdee*f/10)*10;
+  const prot=r0(w*(p.goal==='keep'?1.6:2)),fat=r0(w*.9),carb=Math.max(0,r0((kcal-prot*4-fat*9)/4));
+  return{bmr:r0(bmr),tdee:r0(tdee),kcal,prot,fat,carb,water:p.water||8};
+}
+const sum=(arr)=>arr.reduce((a,i)=>({k:a.k+(+i.k||0),p:a.p+(+i.p||0),f:a.f+(+i.f||0),c:a.c+(+i.c||0)}),{k:0,p:0,f:0,c:0});
+const burned=d=>d.ex.reduce((a,w)=>a+(+w.kcal||0),0);
+const vol=w=>w.ex.reduce((a,e)=>a+e.sets.reduce((b,s)=>b+(+s.r||0)*(+s.w||0),0),0);
+
+// ---------- стан UI ----------
+let tab='today',cur=today(),toastT=null;
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,1800)}
+function nav(){const it=[['today','Сьогодні',I.home],['gym','Треня',I.gym],['prog','Прогрес',I.chart],['prof','Профіль',I.user]];
+  $('#nav').innerHTML=it.map(a=>`<button class="${tab===a[0]?'on':''}" data-tab="${a[0]}">${a[2]}${a[1]}</button>`).join('')}
+function render(){nav();$('#view').innerHTML={today:vToday,gym:vGym,prog:vProg,prof:vProf}[tab]();if(tab==='prog')drawCharts();window.scrollTo&&0}
+
+function vToday(){
+  const d=day(cur),T=targets(),s=sum(d.food),b=burned(d),left=T.kcal-s.k,pct=Math.min(1,s.k/Math.max(1,T.kcal));
+  const C=2*Math.PI*64,over=left<0;
+  const mac=(n,v,t,col)=>`<div><div class="sm mut">${n} <b>${r0(v)}</b>/${t} г</div><div class="bar"><i style="width:${Math.min(100,v/Math.max(1,t)*100)}%;background:${col}"></i></div></div>`;
+  const meals=MEALS.map(([m,n])=>{const it=d.food.filter(f=>f.m===m),t=sum(it);
+    return`<div class="card"><div class="row sp"><h3>${n}</h3><span class="k num">${r0(t.k)} ккал</span></div>
+    ${it.map(f=>`<div class="item"><div class="grow"><div class="nm">${esc(f.n)}</div><div class="sm mut">${f.g>0?`${r0(f.g)} г · Б ${r1(f.p)} Ж ${r1(f.f)} В ${r1(f.c)}`:'швидкий запис'}</div></div><span class="k">${r0(f.k)}</span><button class="x" aria-label="Видалити" data-delfood="${esc(f.id)}">${I.x}</button></div>`).join('')}
+    <button class="add" data-addfood="${m}">${I.plus} Додати</button></div>`}).join('');
+  const ws=d.ex.map(w=>`<div class="item" data-editw="${esc(w.id)}" style="cursor:pointer"><div class="grow"><div class="nm">${esc(w.n||'Тренування')}</div><div class="sm mut">${w.ex.length} вправ · ${r0(w.min)} хв · ${r0(vol(w))} кг об’єм</div></div><span class="k">−${r0(w.kcal)}</span></div>`).join('');
+  return`${!S.profile.set?`<div class="banner"><h3>Заповни профіль</h3><div class="sm">Щоб порахувати твою норму калорій і БЖВ.</div><button class="btn" data-tab="prof">Заповнити</button></div>`:''}
+  <div class="datebar"><button class="ico" aria-label="Попередній день" data-day="-1">${I.l}</button>
+  <div class="t"><h2>${cur===today()?'Сьогодні':esc(fmtD(cur))}</h2><div class="sync" id="sync" style="justify-content:center">${syncHTML()}</div></div>
+  <button class="ico" aria-label="Наступний день" data-day="1">${I.r}</button></div>
+  <div class="card"><div class="hero"><div class="ring"><svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="64" fill="none" stroke="var(--card2)" stroke-width="13"/><circle cx="75" cy="75" r="64" fill="none" stroke="${over?'var(--acc)':'var(--ok)'}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${C*pct} ${C}"/></svg>
+  <div class="in"><div class="big">${Math.abs(r0(left))}</div><div class="sm mut">${over?'перебір':'залишилось'}</div></div></div>
+  <div><div class="stat"><span class="mut">Норма</span><b>${T.kcal}</b></div><div class="stat"><span class="mut">З’їв</span><b>${r0(s.k)}</b></div><div class="stat"><span class="mut">Спалив</span><b>${r0(b)}</b></div></div></div>
+  <div class="macros">${mac('Білки',s.p,T.prot,'var(--p)')}${mac('Жири',s.f,T.fat,'var(--f)')}${mac('Вугл.',s.c,T.carb,'var(--c)')}</div></div>
+  <div class="card"><div class="row sp"><div><h3>Вода</h3><div class="sm mut">${d.water} з ${T.water} склянок · ${(d.water*0.25).toFixed(2).replace(/\.?0+$/,'')} л</div></div>
+  <div class="row"><button class="ico" aria-label="Мінус склянка" data-water="-1">${I.minus}</button><button class="ico" aria-label="Плюс склянка" data-water="1">${I.plus}</button></div></div>
+  <div class="water">${Array.from({length:Math.max(T.water,d.water)},(_,i)=>`<i class="${i<d.water?'on':''}"></i>`).join('')}</div></div>
+  ${meals}
+  <div class="card"><div class="row sp"><h3>Тренування</h3><span class="k num">−${r0(b)} ккал</span></div>${ws||'<div class="empty">Сьогодні ще без трені</div>'}<button class="add" data-neww="1">${I.plus} Записати тренування</button></div>`;
+}
+
+function allWorkouts(){const out=[];Object.keys(S.days).sort().reverse().forEach(k=>S.days[k].ex.forEach(w=>out.push({d:k,w})));return out}
+function vGym(){
+  const all=allWorkouts(),wk=addDays(today(),-6),week=all.filter(x=>x.d>=wk);
+  const pr={};all.forEach(({w})=>w.ex.forEach(e=>e.sets.forEach(s=>{if(+s.w>0&&(!pr[e.n]||+s.w>pr[e.n].w))pr[e.n]={w:+s.w,r:+s.r}})));
+  const prs=Object.entries(pr).sort((a,b)=>b[1].w-a[1].w).slice(0,8);
+  return`<h1 style="margin-top:6px">Треня</h1>
+  <div class="kp"><div><b>${week.length}</b><span class="sm mut">трень за 7 днів</span></div><div><b>${r0(week.reduce((a,x)=>a+vol(x.w),0)/1000*10)/10} т</b><span class="sm mut">об’єм за тиждень</span></div><div><b>${r0(week.reduce((a,x)=>a+(+x.w.min||0),0))}</b><span class="sm mut">хвилин</span></div></div>
+  <button class="btn w" style="margin-top:12px" data-neww="1">Почати тренування</button>
+  <div class="card"><h3>Історія</h3>${all.slice(0,25).map(({d,w})=>`<div class="item" data-editw="${esc(w.id)}" data-wd="${d}" style="cursor:pointer"><div class="grow"><div class="nm">${esc(w.n||'Тренування')}</div><div class="sm mut">${esc(fmtD(d))} · ${w.ex.map(e=>esc(e.n)).slice(0,3).join(', ')}${w.ex.length>3?'…':''}</div></div><span class="k">${r0(vol(w))} кг</span></div>`).join('')||'<div class="empty">Тут з’являться твої тренування</div>'}</div>
+  <div class="card"><h3>Рекорди</h3>${prs.map(([n,v])=>`<div class="item"><div class="grow nm">${esc(n)}</div><span class="k">${r1(v.w)} кг × ${r0(v.r)}</span></div>`).join('')||'<div class="empty">Запиши вправи з вагою — тут будуть твої максимуми</div>'}</div>`;
+}
+
+function vProg(){
+  const T=targets(),w=[...S.weights].sort((a,b)=>a.d<b.d?-1:1),last=w[w.length-1],first=w[0];
+  const days=Array.from({length:7},(_,i)=>addDays(today(),i-6)),logged=days.filter(k=>day(k).food.length);
+  const avg=f=>logged.length?r0(logged.reduce((a,k)=>a+sum(day(k).food)[f],0)/logged.length):0;
+  return`<h1 style="margin-top:6px">Прогрес</h1>
+  <div class="card"><div class="row sp"><h3>Вага</h3><span class="sm mut">${last?`${last.kg} кг${first&&first!==last?` · ${(last.kg-first.kg>0?'+':'')+r1(last.kg-first.kg)} кг з початку`:''}`:'ще немає записів'}</span></div>
+  <div class="row" style="margin-top:10px"><input id="wIn" inputmode="decimal" placeholder="Вага сьогодні, кг" value="${S.weights.find(x=>x.d===today())?.kg??''}"><button class="btn" data-savew="1">Записати</button></div>
+  <div class="fig" id="wFig"><svg id="wSvg"></svg></div></div>
+  <div class="card"><div class="row sp"><h3>Калорії за 7 днів</h3><span class="sm mut">норма ${T.kcal}</span></div><div class="fig" id="kFig"><svg id="kSvg"></svg></div>
+  <div class="kp"><div><b>${avg('k')}</b><span class="sm mut">сер. ккал</span></div><div><b>${avg('p')} г</b><span class="sm mut">сер. білки</span></div><div><b>${logged.length}/7</b><span class="sm mut">днів записано</span></div></div></div>`;
+}
+let roW=null,roK=null;
+function drawCharts(){
+  const ws=$('#wSvg'),ks=$('#kSvg');if(!ws||!ks)return;
+  const dw=()=>{const W=ws.clientWidth,H=ws.clientHeight,pts=[...S.weights].sort((a,b)=>a.d<b.d?-1:1).slice(-30);
+    if(pts.length<2){ws.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--mut)" font-size="14">Запиши вагу хоча б 2 рази</text>`;return}
+    const v=pts.map(p=>p.kg),mn=Math.min(...v)-0.5,mx=Math.max(...v)+0.5,L=36,R=10,Tp=12,B=24;
+    const X=i=>L+i*(W-L-R)/(pts.length-1),Y=x=>Tp+(mx-x)/(mx-mn)*(H-Tp-B);
+    const line=pts.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(p.kg).toFixed(1)}`).join('');
+    ws.innerHTML=[mn+0.5,(mn+mx)/2,mx-0.5].map(t=>`<line x1="${L}" x2="${W-R}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(t)+4}" text-anchor="end" font-size="11" fill="var(--mut)">${r1(t)}</text>`).join('')
+    +`<path d="${line}" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linejoin="round"/>`+pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.kg)}" r="3.5" fill="var(--acc)"/>`).join('')
+    +`<text x="${L}" y="${H-6}" font-size="11" fill="var(--mut)">${esc(fmtD(pts[0].d))}</text><text x="${W-R}" y="${H-6}" font-size="11" text-anchor="end" fill="var(--mut)">${esc(fmtD(pts[pts.length-1].d))}</text>`};
+  const dk=()=>{const W=ks.clientWidth,H=ks.clientHeight,T=targets().kcal,days=Array.from({length:7},(_,i)=>addDays(today(),i-6)),v=days.map(k=>sum(day(k).food).k);
+    const mx=Math.max(T*1.25,...v),B=22,Tp=8,bw=(W-12)/7;const Y=x=>Tp+(1-x/mx)*(H-Tp-B);
+    ks.innerHTML=days.map((k,i)=>{const x=6+i*bw+bw*.18,w=bw*.64,y=Y(v[i]);return`<rect x="${x}" y="${y}" width="${w}" height="${Math.max(0,H-B-y)}" rx="5" fill="${v[i]>T*1.05?'var(--acc)':'var(--ok)'}"/><text x="${x+w/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="var(--mut)">${esc(toDate(k).toLocaleDateString('uk-UA',{weekday:'short'}))}</text>`}).join('')
+    +`<line x1="4" x2="${W-4}" y1="${Y(T)}" y2="${Y(T)}" stroke="var(--ink)" stroke-dasharray="4 4" opacity=".5"/>`};
+  roW&&roW.disconnect();roK&&roK.disconnect();roW=new ResizeObserver(dw);roW.observe(ws);roK=new ResizeObserver(dk);roK.observe(ks);
+}
+
+function vProf(){
+  const p=S.profile,T=targets(),opt=(arr,v)=>arr.map(a=>`<option value="${a[0]}" ${String(a[0])===String(v)?'selected':''}>${a[1]}</option>`).join('');
+  return`<h1 style="margin-top:6px">Профіль</h1>
+  <div class="card"><div class="g2"><div><label for="pSex">Стать</label><select id="pSex" data-pf="sex">${opt([['m','Чоловіча'],['f','Жіноча']],p.sex)}</select></div>
+  <div><label for="pAge">Вік</label><input id="pAge" inputmode="numeric" data-pf="age" value="${esc(p.age)}"></div>
+  <div><label for="pH">Зріст, см</label><input id="pH" inputmode="numeric" data-pf="h" value="${esc(p.h)}"></div>
+  <div><label for="pW">Вага, кг</label><input id="pW" inputmode="decimal" data-pf="w" value="${esc(curW())}"></div></div>
+  <label for="pAct">Активність</label><select id="pAct" data-pf="act">${opt(ACT,p.act)}</select>
+  <label>Ціль</label><div class="chips">${GOALS.map(g=>`<button class="chip ${p.goal===g[0]?'on':''}" data-goal="${g[0]}">${g[1]}</button>`).join('')}</div>
+  <div class="g2"><div><label for="pWat">Вода, склянок/день</label><input id="pWat" inputmode="numeric" data-pf="water" value="${esc(p.water)}"></div>
+  <div><label for="pK">Своя норма ккал</label><input id="pK" inputmode="numeric" data-pf="kcal" placeholder="авто" value="${p.kcal>0?esc(p.kcal):''}"></div></div></div>
+  <div class="card"><h3>Твоя норма</h3><div class="kp"><div><b>${T.kcal}</b><span class="sm mut">ккал/день</span></div><div><b>${T.tdee}</b><span class="sm mut">витрата</span></div><div><b>${T.bmr}</b><span class="sm mut">базовий обмін</span></div></div>
+  <div class="kp"><div><b style="color:var(--p)">${T.prot} г</b><span class="sm mut">білки</span></div><div><b style="color:var(--f)">${T.fat} г</b><span class="sm mut">жири</span></div><div><b style="color:var(--c)">${T.carb} г</b><span class="sm mut">вуглеводи</span></div></div></div>
+  <div class="card"><h3>Мої продукти</h3>${S.custom.map(f=>`<div class="item"><div class="grow"><div class="nm">${esc(f.n)}</div><div class="sm mut">${r0(f.k)} ккал · Б ${r1(f.p)} Ж ${r1(f.f)} В ${r1(f.c)} на 100 г</div></div><button class="x" aria-label="Видалити" data-delcustom="${esc(f.id)}">${I.x}</button></div>`).join('')||'<div class="empty">Додаються через «Додати → Своє»</div>'}</div>
+  <div class="sync" id="sync" style="margin-top:12px">${syncHTML()}</div>`;
+}
+
+// ---------- шторка ----------
+const sheet=$('#sheet'),sbd=$('#sheetBd');
+function openSheet(h){sbd.innerHTML='<div class="grab"></div>'+h;sheet.classList.remove('hidden');sbd.scrollTop=0}
+function closeSheet(){sheet.classList.add('hidden');sbd.innerHTML='';render()}
+$('#sheetBg').onclick=closeSheet;
+
+// їжа
+let FM='b',FT='find',P=null,AIres=[],aiCtl=null,sampleFn=undefined;
+async function getSample(){if(sampleFn!==undefined)return sampleFn;try{sampleFn=window.claude&&claude.use?await claude.use('sample'):null}catch(e){sampleFn=null}return sampleFn}
+function recents(){const seen=new Set(),out=[];Object.keys(S.days).sort().reverse().forEach(k=>S.days[k].food.forEach(f=>{if(out.length<12&&!seen.has(f.n)&&f.g>0){seen.add(f.n);out.push({n:f.n,k:f.k/f.g*100,p:f.p/f.g*100,f:f.f/f.g*100,c:f.c/f.g*100,u:f.g,un:'як минулого'})}}));return out}
+function foodSheet(){
+  const mealChips=`<div class="chips">${MEALS.map(([m,n])=>`<button class="chip ${FM===m?'on':''}" data-fm="${m}">${n}</button>`).join('')}</div>`;
+  const tabs=`<div class="tabs">${[['find','Пошук'],['own','Своє'],['ai','ШІ']].filter(t=>t[0]!=='ai'||window.claude).map(t=>`<button class="${FT===t[0]?'on':''}" data-ft="${t[0]}">${t[1]}</button>`).join('')}</div>`;
+  let h='';
+  if(FT==='find')h=`<input id="fq" placeholder="Пошук: гречка, яйце, банан…" autocomplete="off"><div class="res" id="fres"></div>`;
+  if(FT==='own')h=`<h3 style="margin-top:6px">Новий продукт (на 100 г)</h3><label for="cN">Назва</label><input id="cN"><div class="g4"><div><label for="cK">Ккал</label><input id="cK" inputmode="decimal"></div><div><label for="cP">Б</label><input id="cP" inputmode="decimal"></div><div><label for="cF">Ж</label><input id="cF" inputmode="decimal"></div><div><label for="cC">В</label><input id="cC" inputmode="decimal"></div></div>
+    <button class="btn w" style="margin-top:12px" data-savecustom="1">Зберегти і додати</button>
+    <h3 style="margin-top:18px">Швидко: тільки калорії</h3><div class="g2"><div><label for="qN">Що</label><input id="qN" placeholder="Обід в їдальні"></div><div><label for="qK">Ккал</label><input id="qK" inputmode="numeric"></div></div><button class="btn sec w" style="margin-top:10px" data-quick="1">Додати</button>`;
+  if(FT==='ai')h=`<label for="aiT">Опиши, що з’їв — ШІ розкладе на продукти і порахує</label><textarea id="aiT" placeholder="2 яйця, 2 скибки хліба з маслом, кава з молоком"></textarea><button class="btn w" style="margin-top:10px" data-ai="1" id="aiB">Порахувати</button><div id="aiR"></div>`;
+  openSheet(`<div class="row sp"><h2>Додати їжу</h2><button class="x" aria-label="Закрити" data-close="1">${I.x}</button></div>${mealChips}${tabs}${h}`);
+  if(FT==='find'){const q=$('#fq');q.oninput=()=>findList(q.value);findList('')}
+}
+function findList(q){
+  q=q.trim().toLowerCase();const el=$('#fres');if(!el)return;
+  const cust=S.custom.map(f=>({...f,mine:1}));let list;
+  if(!q){const rc=recents();list=(rc.length?[{hdr:'Недавні'},...rc]:[]).concat([{hdr:'Продукти'}],cust,FOODS)}
+  else list=cust.concat(FOODS,recents()).filter(f=>f.n.toLowerCase().includes(q)).slice(0,40);
+  window._fl=list;
+  el.innerHTML=list.map((f,i)=>f.hdr?`<div class="sm mut" style="margin-top:10px">${f.hdr}</div>`:`<div class="item" data-pick="${i}"><div class="grow"><div class="nm">${esc(f.n)}${f.mine?' <span class="sm mut">· моє</span>':''}</div><div class="sm mut">Б ${r1(f.p)} Ж ${r1(f.f)} В ${r1(f.c)} на 100 г</div></div><span class="k">${r0(f.k)}</span></div>`).join('')||'<div class="empty">Нічого не знайшов — додай у «Своє» або спитай ШІ</div>';
+}
+function portion(f){
+  P=f;const g0=f.u||100;
+  openSheet(`<div class="row sp"><h2>${esc(f.n)}</h2><button class="x" aria-label="Закрити" data-close="1">${I.x}</button></div>
+  <div class="chips">${MEALS.map(([m,n])=>`<button class="chip ${FM===m?'on':''}" data-fm2="${m}">${n}</button>`).join('')}</div>
+  <label for="pg">Вага, г</label><input id="pg" inputmode="decimal" value="${r0(g0)}">
+  <div class="chips">${f.u&&f.un!=='як минулого'?[1,2,3].map(n=>`<button class="chip" data-g="${f.u*n}">${n} ${esc(f.un)}</button>`).join(''):''}${[50,100,150,200,300].map(g=>`<button class="chip" data-g="${g}">${g} г</button>`).join('')}</div>
+  <div class="card" id="pv"></div><button class="btn w" style="margin-top:12px" data-addp="1">Додати</button><button class="btn sec w" style="margin-top:8px" data-back="1">Назад</button>`);
+  const pg=$('#pg');pg.oninput=pv;pv();
+}
+function pv(){const g=num($('#pg').value),f=P,m=g/100;$('#pv').innerHTML=`<div class="row sp"><div><div class="big2">${r0(f.k*m)}</div><div class="sm mut">ккал</div></div><div class="sm" style="text-align:right"><div>Білки <b>${r1(f.p*m)} г</b></div><div>Жири <b>${r1(f.f*m)} г</b></div><div>Вугл. <b>${r1(f.c*m)} г</b></div></div></div>`}
+function pushFood(it){dayW(cur).food.push({id:nid(),m:FM,...it});touch('d-'+cur)}
+
+// тренування
+let W=null,WD=null,WID=null;
+function lastFor(name){for(const k of Object.keys(S.days).sort().reverse())for(const w of S.days[k].ex){if(w.id===WID)continue;const e=w.ex.find(e=>e.n===name);if(e&&e.sets.length)return{d:k,s:e.sets}}return null}
+function newWorkout(){
+  const all=allWorkouts();
+  openSheet(`<div class="row sp"><h2>Нове тренування</h2><button class="x" aria-label="Закрити" data-close="1">${I.x}</button></div>
+  ${all.length?`<button class="btn w" style="margin-top:10px" data-repeat="1">Повторити: ${esc(all[0].w.n||'останнє')}</button>`:''}
+  <div class="sm mut" style="margin-top:12px">Шаблони</div>
+  ${TPL.map((t,i)=>`<div class="item" data-tpl="${i}" style="cursor:pointer"><div class="grow"><div class="nm">${esc(t.n)}</div><div class="sm mut">${t.ex.map(esc).join(', ')}</div></div>${I.r}</div>`).join('')}
+  <button class="btn sec w" style="margin-top:10px" data-tpl="-1">Пусте тренування</button>`);
+}
+function startW(w,d,id){W=JSON.parse(JSON.stringify(w));WD=d;WID=id;editW()}
+function editW(){
+  const exH=W.ex.map((e,i)=>{const l=lastFor(e.n);return`<div class="ex"><div class="row sp"><input value="${esc(e.n)}" data-en="${i}" list="exl" style="font-weight:700"><button class="x" aria-label="Прибрати вправу" data-delex="${i}">${I.x}</button></div>
+    ${l?`<div class="hint">Минулого разу: ${l.s.map(s=>`${r0(s.r)}×${r1(s.w)}`).join(', ')}</div>`:''}
+    <div class="set sm mut" style="margin-top:8px"><span>#</span><span>Повтори</span><span>Вага, кг</span><span></span></div>
+    ${e.sets.map((s,j)=>`<div class="set"><span class="mut">${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" data-sr="${i}.${j}" placeholder="10"><input inputmode="decimal" value="${esc(s.w)}" data-sw="${i}.${j}" placeholder="0"><button class="x" aria-label="Прибрати підхід" data-delset="${i}.${j}">${I.x}</button></div>`).join('')}
+    <button class="add" data-addset="${i}">${I.plus} Підхід</button></div>`}).join('');
+  openSheet(`<div class="row sp"><h2>${WID?'Тренування':'Нове тренування'}</h2><button class="x" aria-label="Закрити" data-close="1">${I.x}</button></div>
+  <div class="sm mut">${esc(fmtD(WD))}</div>
+  <label for="wn">Назва</label><input id="wn" value="${esc(W.n)}" data-wf="n">
+  ${exH}
+  <div class="row" style="margin-top:10px"><input id="nex" list="exl" placeholder="Додати вправу"><button class="btn sec" data-addex="1">${I.plus}</button></div>
+  <datalist id="exl">${EXALL.map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
+  <div class="g2"><div><label for="wmin">Тривалість, хв</label><input id="wmin" inputmode="numeric" value="${esc(W.min)}" data-wf="min"></div><div><label for="wk">Спалено, ккал</label><input id="wk" inputmode="numeric" value="${W.kcal?esc(W.kcal):''}" data-wf="kcal" placeholder="авто"></div></div>
+  <div class="hint">Якщо не вписати ккал — порахую приблизно з тривалості і ваги. Трені вже враховані в нормі через «Активність» у профілі, тому спалене до норми не додається.</div>
+  <button class="btn w" style="margin-top:12px" data-savewk="1">Зберегти</button>
+  ${WID?`<button class="btn sec w" style="margin-top:8px;color:var(--acc2)" data-delw="1">Видалити тренування</button>`:''}`);
+}
+
+// ---------- події ----------
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button,[data-pick],[data-editw],[data-tpl]');if(!b)return;const ds=b.dataset;
+  if(ds.tab){tab=ds.tab;if(!sheet.classList.contains('hidden'))sheet.classList.add('hidden');render();window.scrollTo(0,0);return}
+  if(ds.day){cur=addDays(cur,+ds.day);render();return}
+  if(ds.water){const d=dayW(cur);d.water=Math.max(0,d.water+ +ds.water);touch('d-'+cur);render();return}
+  if(ds.delfood){const d=dayW(cur);d.food=d.food.filter(f=>f.id!==ds.delfood);touch('d-'+cur);render();return}
+  if(ds.addfood){FM=ds.addfood;FT='find';foodSheet();return}
+  if(ds.close){closeSheet();return}
+  if(ds.fm){FM=ds.fm;sbd.querySelectorAll('[data-fm]').forEach(x=>x.classList.toggle('on',x.dataset.fm===FM));return}
+  if(ds.fm2){FM=ds.fm2;sbd.querySelectorAll('[data-fm2]').forEach(x=>x.classList.toggle('on',x.dataset.fm2===FM));return}
+  if(ds.ft){FT=ds.ft;foodSheet();if(FT==='ai')getSample().then(s=>{if(!s&&$('#aiR')){$('#aiB').disabled=true;$('#aiR').innerHTML='<div class="empty">ШІ тут недоступний — скористайся пошуком або «Своє».</div>'}});return}
+  if(ds.pick!==undefined){const f=window._fl[+ds.pick];if(f&&!f.hdr)portion(f);return}
+  if(ds.g){$('#pg').value=r0(+ds.g);pv();return}
+  if(ds.back){foodSheet();return}
+  if(ds.addp){const g=num($('#pg').value);if(g<=0){toast('Вкажи вагу');return}const m=g/100;pushFood({n:P.n,g,k:r1(P.k*m),p:r1(P.p*m),f:r1(P.f*m),c:r1(P.c*m)});toast('Додано');closeSheet();return}
+  if(ds.savecustom){const n=$('#cN').value.trim(),k=num($('#cK').value);if(!n||k<=0){toast('Назва і ккал обов’язкові');return}
+    const f={id:nid(),n,k,p:num($('#cP').value),f:num($('#cF').value),c:num($('#cC').value)};S.custom.unshift(f);touch('main');portion(f);return}
+  if(ds.quick){const n=$('#qN').value.trim()||'Перекус',k=num($('#qK').value);if(k<=0){toast('Вкажи ккал');return}pushFood({n,g:0,k,p:0,f:0,c:0});toast('Додано');closeSheet();return}
+  if(ds.ai){runAI();return}
+  if(ds.aiadd){const picks=[...sbd.querySelectorAll('[data-aichk]')].filter(x=>x.checked).map(x=>AIres[+x.dataset.aichk]);if(!picks.length){toast('Нічого не вибрано');return}
+    picks.forEach(it=>pushFood(it));toast('Додано: '+picks.length);closeSheet();return}
+  if(ds.delcustom){S.custom=S.custom.filter(f=>f.id!==ds.delcustom);touch('main');render();return}
+  if(ds.goal){S.profile.goal=ds.goal;S.profile.set=true;touch('main');render();return}
+  if(ds.savew){const kg=num($('#wIn').value);if(kg<25||kg>350){toast('Вкажи вагу в кг');return}const t=today();S.weights=S.weights.filter(x=>x.d!==t);S.weights.push({d:t,kg:r1(kg)});S.profile.w=r1(kg);touch('main');toast('Вагу записано');render();return}
+  if(ds.neww){newWorkout();return}
+  if(ds.tpl!==undefined){const i=+ds.tpl,t=TPL[i];startW({n:t?t.n:'Тренування',ex:t?t.ex.map(n=>({n,sets:[{r:'',w:''},{r:'',w:''},{r:'',w:''}]})):[],min:'',kcal:0},cur,null);return}
+  if(ds.repeat){const w=allWorkouts()[0].w;startW({n:w.n,ex:w.ex.map(e=>({n:e.n,sets:e.sets.map(s=>({r:s.r,w:s.w}))})),min:w.min,kcal:0},cur,null);return}
+  if(ds.editw){const d=ds.wd||cur,w=day(d).ex.find(x=>x.id===ds.editw);if(w)startW(w,d,w.id);return}
+  if(ds.addset){const e=W.ex[+ds.addset],l=e.sets[e.sets.length-1];e.sets.push({r:l?l.r:'',w:l?l.w:''});editW();return}
+  if(ds.delset){const[i,j]=ds.delset.split('.').map(Number);W.ex[i].sets.splice(j,1);editW();return}
+  if(ds.delex){W.ex.splice(+ds.delex,1);editW();return}
+  if(ds.addex){const n=$('#nex').value.trim();if(!n)return;W.ex.push({n,sets:[{r:'',w:''},{r:'',w:''},{r:'',w:''}]});editW();return}
+  if(ds.savewk){
+    W.ex=W.ex.map(e=>({n:e.n.trim()||'Вправа',sets:e.sets.filter(s=>String(s.r).trim()!==''||String(s.w).trim()!=='').map(s=>({r:num(s.r),w:num(s.w)}))})).filter(e=>e.sets.length||W.ex.length===1);
+    W.min=num(W.min);W.kcal=num(W.kcal);if(!W.kcal&&W.min)W.kcal=r0(4*3.5*curW()/200*W.min);
+    const d=dayW(WD);if(WID){const i=d.ex.findIndex(x=>x.id===WID);if(i>=0)d.ex[i]={...W,id:WID}}else d.ex.push({...W,id:nid()});
+    touch('d-'+WD);toast('Тренування збережено');closeSheet();return}
+  if(ds.delw){const d=dayW(WD);d.ex=d.ex.filter(x=>x.id!==WID);touch('d-'+WD);toast('Видалено');closeSheet();return}
+});
+document.addEventListener('input',e=>{
+  const t=e.target,ds=t.dataset;
+  if(ds.en!==undefined)W.ex[+ds.en].n=t.value;
+  if(ds.sr){const[i,j]=ds.sr.split('.').map(Number);W.ex[i].sets[j].r=t.value}
+  if(ds.sw){const[i,j]=ds.sw.split('.').map(Number);W.ex[i].sets[j].w=t.value}
+  if(ds.wf)W[ds.wf]=t.value;
+});
+document.addEventListener('change',e=>{
+  const t=e.target,k=t.dataset.pf;if(!k)return;const p=S.profile;
+  if(k==='sex')p.sex=t.value;else if(k==='act')p.act=+t.value;
+  else if(k==='w'){const kg=num(t.value);if(kg>=25&&kg<=350){p.w=r1(kg);const td=today();S.weights=S.weights.filter(x=>x.d!==td);S.weights.push({d:td,kg:p.w})}}
+  else{const v=num(t.value);if(k==='kcal')p.kcal=v>=800?r0(v):0;else if(v>0)p[k]=r0(v)}
+  p.set=true;touch('main');render();
+});
+
+async function runAI(){
+  const txt=$('#aiT').value.trim();if(!txt){toast('Опиши, що з’їв');return}
+  const s=await getSample();const out=$('#aiR'),btn=$('#aiB');
+  if(!s){out.innerHTML='<div class="empty">ШІ тут недоступний.</div>';return}
+  btn.disabled=true;btn.textContent='Рахую…';out.innerHTML='';
+  aiCtl&&aiCtl.abort();aiCtl=new AbortController();
+  const prompt=`Ти нутриціолог. Користувач описав, що з'їв. Розбий опис на окремі продукти або страви, для кожного оціни реалістичну вагу порції в грамах і калорійність та БЖВ саме на цю порцію (типові українські порції). Відповідай ТІЛЬКИ JSON-масивом без пояснень, у форматі: [{"n":"назва українською","g":грами,"k":ккал,"p":білки_г,"f":жири_г,"c":вуглеводи_г}]. Числа — без одиниць.\nОпис: ${txt}`;
+  try{
+    const r=await s(prompt,{signal:aiCtl.signal,modelTier:'quick'});
+    const t=r.text||'',a=t.indexOf('['),z=t.lastIndexOf(']');
+    const arr=a>=0&&z>a?JSON.parse(t.slice(a,z+1)):[];
+    AIres=(Array.isArray(arr)?arr:[]).filter(x=>x&&x.n).slice(0,20).map(x=>({n:String(x.n).slice(0,80),g:r0(num(x.g)),k:r0(num(x.k)),p:r1(num(x.p)),f:r1(num(x.f)),c:r1(num(x.c))}));
+    if(!AIres.length){out.innerHTML='<div class="empty">Не вдалося розібрати. Спробуй написати простіше.</div>'}
+    else{const tot=sum(AIres);out.innerHTML=`<div class="card">${AIres.map((x,i)=>`<label class="item" style="margin:0;color:var(--ink);font-size:16px"><input type="checkbox" checked data-aichk="${i}" style="width:22px;min-height:22px;flex:none"><div class="grow"><div class="nm">${esc(x.n)}</div><div class="sm mut">${x.g} г · Б ${x.p} Ж ${x.f} В ${x.c}</div></div><span class="k">${x.k}</span></label>`).join('')}
+      <div class="row sp" style="margin-top:8px"><b>Разом</b><span class="k num">${r0(tot.k)} ккал</span></div><div class="hint">Це приблизна оцінка ШІ.</div></div><button class="btn w" style="margin-top:10px" data-aiadd="1">Додати вибране</button>`}
+  }catch(e){
+    if(e&&e.name==='AbortError')return;
+    out.innerHTML=`<div class="empty">${e&&e.code==='rate_limited'?'Забагато запитів, спробуй за хвилину.':e&&e.code==='not_granted'?'Доступ до ШІ не надано.':'Не вийшло порахувати, спробуй ще раз.'}</div>`;
+  }finally{if(btn){btn.disabled=false;btn.textContent='Порахувати'}}
+}
+
+window.forBack=()=>{if(!sheet.classList.contains('hidden')){closeSheet();return true}if(tab!=='today'){tab='today';render();return true}return false};
+if(!S.profile.set)tab='today';
+render();
+}
+</script>
+</body>
+</html>
