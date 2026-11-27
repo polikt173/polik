@@ -209,9 +209,9 @@ const UI={'Сьогодні':'Today','Треня':'Workouts','Прогрес':'P
 'Якщо не вписати ккал — порахую приблизно з тривалості і ваги. Трені вже враховані в нормі через «Активність» у профілі, тому спалене до норми не додається.':'Leave kcal empty to estimate from duration and weight. Workouts are already included in your goal via “Activity”, so burned calories are not added to it.','Видалити тренування':'Delete workout',
 'ШІ тут недоступний — скористайся пошуком або «Своє».':'AI is unavailable here — use search or “Custom”.','Щоб ШІ працював, встав ключ Gemini в Налаштуваннях.':'To use AI, paste a Gemini key in Settings.','Відкрити налаштування':'Open settings','ШІ тут недоступний.':'AI is unavailable here.','Встав ключ Gemini в Налаштуваннях.':'Paste a Gemini key in Settings.',
 'Ключ закороткий':'Key is too short','Ключ збережено':'Key saved','Ключ видалено':'Key deleted','Вкажи вагу':'Enter the weight','Додано':'Added','Назва і ккал обов’язкові':'Name and kcal are required','Вкажи ккал':'Enter kcal','Нічого не вибрано':'Nothing selected','Вкажи вагу в кг':'Enter weight in kg','Вагу записано':'Weight saved','Тренування збережено':'Workout saved','Видалено':'Deleted','Дані стерто':'Data erased','Опиши, що з’їв':'Describe what you ate','Сховище заповнене':'Storage is full',
-'Не вдалося розібрати. Спробуй написати простіше.':'Couldn’t parse that. Try writing it more simply.','Забагато запитів, спробуй за хвилину.':'Too many requests, try again in a minute.','Доступ до ШІ не надано.':'AI access not granted.','Ключ не підходить — перевір його в Налаштуваннях.':'The key doesn’t work — check it in Settings.','Немає інтернету.':'No internet connection.','Не вийшло порахувати, спробуй ще раз.':'Couldn’t count, try again.',
+'Не вдалося розібрати. Спробуй написати простіше.':'Couldn’t parse that. Try writing it more simply.','Забагато запитів, спробуй за хвилину.':'Too many requests, try again in a minute.','Сервери Gemini зараз перевантажені, спробуй ще раз за хвилину.':'Gemini servers are overloaded right now, try again in a minute.','Доступ до ШІ не надано.':'AI access not granted.','Ключ не підходить — перевір його в Налаштуваннях.':'The key doesn’t work — check it in Settings.','Немає інтернету.':'No internet connection.','Не вийшло порахувати, спробуй ще раз.':'Couldn’t count, try again.',
 'Сканувати камерою':'Scan with camera','Зупинити':'Stop','Наведи камеру на штрих-код':'Point the camera at the barcode','Або введи цифри штрих-коду':'Or type the barcode digits','Знайти':'Find','Шукаю…':'Searching…','Продукт не знайдено в базі. Додай його через «Своє».':'Product not found. Add it via “Custom”.','Немає доступу до камери. Дозволь камеру для програми або введи код вручну.':'No camera access. Allow the camera for the app or type the code.','Не вдалося знайти — перевір інтернет.':'Lookup failed — check your internet.','Сканер тут недоступний.':'Scanner is unavailable here.','Дані про продукт з Open Food Facts — перевір цифри на упаковці.':'Product data from Open Food Facts — check the numbers on the pack.',
-'Форма 1.3':'Forma 1.3','Тренування ':'Workout','Перекус':'Snack','Вправа':'Exercise'};
+'Форма 1.4':'Forma 1.4','Тренування ':'Workout','Перекус':'Snack','Вправа':'Exercise'};
 for(const f of FOODS)UI[f.n]=f.en;for(const k in EXEN)UI[k]=EXEN[k];
 const PART=[[/на 100 г/g,'per 100 g'],[/(\d+) з (\d+) склянок/g,'$1 of $2 glasses'],[/(\d+) вправ/g,'$1 exercises'],[/(\d) хв(?=$|[\s·,)])/g,'$1 min'],[/кг об’єм/g,'kg volume'],[/кг з початку/g,'kg since start'],[/(\d) кг/g,'$1 kg'],[/(\d) т$/g,'$1 t'],[/(\d) л(?=$|[\s·,)])/g,'$1 L'],[/(\d) г(?=$|[\s·,)\/])/g,'$1 g'],[/(^|[\s·])Б (?=[\d-])/g,'$1P '],[/(^|[\s·])Ж (?=[\d-])/g,'$1F '],[/(^|[\s·])В (?=[\d-])/g,'$1C '],[/ккал/g,'kcal'],[/Минулого разу:/g,'Last time:'],[/^норма /,'goal '],[/^Додано: /,'Added: '],[/^Повторити: /,'Repeat: '],[/· моє/g,'· mine'],[/^авто: /,'auto: '],[/^Помилка: /,'Error: '],[/^Знайдено: /,'Found: '],
 [/(\d) шт\b|(\d) шт$/g,(m,a,b)=>(a||b)+' pc'],[/(\d) скибка/g,'$1 slice'],[/(\d) порція/g,'$1 serving'],[/(\d) склянка/g,'$1 glass'],[/(\d) шматок/g,'$1 piece'],[/(\d) ст\.л\./g,'$1 tbsp'],[/(\d) ч\.л\./g,'$1 tsp'],[/(\d) тарілка/g,'$1 bowl'],[/(\d) чашка/g,'$1 cup'],[/(\d) банка/g,'$1 can'],[/(\d) пляшка/g,'$1 bottle'],[/(\d) скуп/g,'$1 scoop'],[/(\d) келих/g,'$1 glass'],[/(\d) чарка/g,'$1 shot'],[/(\d) шт(?=\s|$)/g,'$1 pc']];
@@ -394,7 +394,7 @@ function vSet(){
   <div class="sec-t">Дані</div>
   <div class="card"><div class="sync" id="sync">${syncHTML()}</div>
   <button class="btn dang w" style="margin-top:12px" data-reset="1">${resetArm?'Точно? Натисни ще раз — все зітреться':'Стерти всі дані'}</button></div>
-  <div class="hint" style="text-align:center;margin-top:16px">Форма 1.3</div>`;
+  <div class="hint" style="text-align:center;margin-top:16px">Форма 1.4</div>`;
 }
 
 // ---------- шторка ----------
@@ -411,12 +411,14 @@ const gkey=()=>GK;
 function setGkey(k){GK=k;try{k?localStorage.setItem('forma.gkey',k):localStorage.removeItem('forma.gkey')}catch(e){}}
 async function gemini(prompt,opts){
   let last=null;
-  for(const m of ['gemini-flash-latest','gemini-3.7-flash','gemini-3.6-flash','gemini-3.5-flash','gemini-3.5-flash-lite','gemini-2.5-flash']){
+  for(const m of ['gemini-flash-latest','gemini-3.6-flash','gemini-3.5-flash','gemini-3.7-flash','gemini-flash-lite-latest','gemini-3.5-flash-lite','gemini-2.5-flash','gemini-2.5-flash-lite']){
     let r;try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent',{method:'POST',signal:opts&&opts.signal,headers:{'Content-Type':'application/json','x-goog-api-key':GK},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.2,responseMimeType:'application/json'}})})}
     catch(e){if(e&&e.name==='AbortError')throw e;throw{code:'offline'}}
     if(!r.ok){let msg='';try{const j=await r.json();msg=(j.error&&(j.error.message||j.error.status))||''}catch(e){}
       last={code:r.status===429?'rate_limited':'api',msg:'HTTP '+r.status+(msg?': '+msg:'')};
-      if(r.status===429)throw last;if([400,401,403,404].includes(r.status)&&!/API_KEY_INVALID|API key not valid/i.test(msg))continue;throw last}
+      if(r.status>=500)last.code='busy';
+      if(/API_KEY_INVALID|API key not valid/i.test(msg)){last.code='bad_key';throw last}
+      if([400,401,403,404,429].includes(r.status)||r.status>=500)continue;throw last}
     const j=await r.json();const t=(j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[]).map(p=>p.text||'').join('');
     return{text:t};
   }
@@ -598,7 +600,7 @@ async function runAI(){
       <div class="row sp" style="margin-top:8px"><b>Разом</b><span class="k num">${r0(tot.k)} ккал</span></div><div class="hint">Це приблизна оцінка ШІ.</div></div><button class="btn w" style="margin-top:10px" data-aiadd="1">Додати вибране</button>`}
   }catch(e){
     if(e&&e.name==='AbortError')return;
-    out.innerHTML=`<div class="empty">${e&&e.code==='rate_limited'?'Забагато запитів, спробуй за хвилину.':e&&e.code==='not_granted'?'Доступ до ШІ не надано.':e&&e.code==='bad_key'?'Ключ не підходить — перевір його в Налаштуваннях.':e&&e.code==='offline'?'Немає інтернету.':e&&e.code==='api'?'Помилка: '+esc(String(e.msg).slice(0,220)):'Не вийшло порахувати, спробуй ще раз.'}</div>`;
+    out.innerHTML=`<div class="empty">${e&&e.code==='busy'?'Сервери Gemini зараз перевантажені, спробуй ще раз за хвилину.':e&&e.code==='rate_limited'?'Забагато запитів, спробуй за хвилину.':e&&e.code==='not_granted'?'Доступ до ШІ не надано.':e&&e.code==='bad_key'?'Ключ не підходить — перевір його в Налаштуваннях.':e&&e.code==='offline'?'Немає інтернету.':e&&e.code==='api'?'Помилка: '+esc(String(e.msg).slice(0,220)):'Не вийшло порахувати, спробуй ще раз.'}</div>`;
   }finally{if(btn){btn.disabled=false;btn.textContent='Порахувати'}}
 }
 
