@@ -267,9 +267,9 @@ const UI={'Повторити останнє':'Repeat last','Пусте трен
 'Ключ закороткий':'Key is too short','Ключ збережено':'Key saved','Ключ видалено':'Key deleted','Вкажи вагу':'Enter the weight','Додано':'Added','Назва і ккал обов’язкові':'Name and kcal are required','Вкажи ккал':'Enter kcal','Нічого не вибрано':'Nothing selected','Вкажи вагу в кг':'Enter weight in kg','Вагу записано':'Weight saved','Тренування збережено':'Workout saved','Видалено':'Deleted','Дані стерто':'Data erased','Опиши, що з’їв':'Describe what you ate','Сховище заповнене':'Storage is full',
 'Не вдалося розібрати. Спробуй написати простіше.':'Couldn’t parse that. Try writing it more simply.','Забагато запитів, спробуй за хвилину.':'Too many requests, try again in a minute.','Сервери Gemini зараз перевантажені, спробуй ще раз за хвилину.':'Gemini servers are overloaded right now, try again in a minute.','Доступ до ШІ не надано.':'AI access not granted.','Ключ не підходить — перевір його в Налаштуваннях.':'The key doesn’t work — check it in Settings.','Немає інтернету.':'No internet connection.','Не вийшло порахувати, спробуй ще раз.':'Couldn’t count, try again.',
 'Сканувати камерою':'Scan with camera','Вмикаю камеру…':'Starting camera…','Зупинити':'Stop','Наведи камеру на штрих-код':'Point the camera at the barcode','Або введи цифри штрих-коду':'Or type the barcode digits','Знайти':'Find','Шукаю…':'Searching…','Продукт не знайдено в базі. Додай його через «Своє».':'Product not found. Add it via “Custom”.','Немає доступу до камери. Дозволь камеру для програми або введи код вручну.':'No camera access. Allow the camera for the app or type the code.','Не вдалося знайти — перевір інтернет.':'Lookup failed — check your internet.','Сканер тут недоступний.':'Scanner is unavailable here.','Дані про продукт з Open Food Facts — перевір цифри на упаковці.':'Product data from Open Food Facts — check the numbers on the pack.',
-'Форма 2.1':'Forma 2.1','Тренування ':'Workout','Перекус':'Snack','Вправа':'Exercise'};
+'Форма 2.2':'Forma 2.2','Тренування ':'Workout','Перекус':'Snack','Вправа':'Exercise'};
 for(const f of FOODS)UI[f.n]=f.en;for(const k in EXEN)UI[k]=EXEN[k];
-const PART=[[/([\d.]+) л з ([\d.]+) л/g,'$1 of $2 L'],[/(\d+) скл\. води/g,'$1 glasses of water'],[/ л з напоїв/g,' L from drinks'],[/^(\d+) вправи?$/,'$1 exercises'],[/на 100 г/g,'per 100 g'],[/на 100 мл/g,'per 100 ml'],[/(\d) мл(?=$|[\s·,)])/g,'$1 ml'],[/(\d+) з (\d+) склянок/g,'$1 of $2 glasses'],[/(\d+) вправ/g,'$1 exercises'],[/(\d) хв(?=$|[\s·,)])/g,'$1 min'],[/кг об’єм/g,'kg volume'],[/кг з початку/g,'kg since start'],[/(\d) кг/g,'$1 kg'],[/(\d) т$/g,'$1 t'],[/(\d) л(?=$|[\s·,)])/g,'$1 L'],[/(\d) г(?=$|[\s·,)\/])/g,'$1 g'],[/(^|[\s·])Б (?=[\d-])/g,'$1P '],[/(^|[\s·])Ж (?=[\d-])/g,'$1F '],[/(^|[\s·])В (?=[\d-])/g,'$1C '],[/ккал/g,'kcal'],[/Минулого разу:/g,'Last time:'],[/^норма /,'goal '],[/^Додано: /,'Added: '],[/^Повторити: /,'Repeat: '],[/· моє/g,'· mine'],[/^авто: /,'auto: '],[/^Спалив (\d+) ккал/,'Burned $1 kcal'],[/Клітковина /g,'Fibre '],[/ Цукор /g,' Sugar '],[/ Сіль /g,' Salt '],[/(^|\s)до (?=\d)/g,'$1max '],[/^Помилка: /,'Error: '],[/^Знайдено: /,'Found: '],
+const PART=[[/^Рахую… (\d+) с$/,'Counting… $1 s'],[/([\d.]+) л з ([\d.]+) л/g,'$1 of $2 L'],[/(\d+) скл\. води/g,'$1 glasses of water'],[/ л з напоїв/g,' L from drinks'],[/^(\d+) вправи?$/,'$1 exercises'],[/на 100 г/g,'per 100 g'],[/на 100 мл/g,'per 100 ml'],[/(\d) мл(?=$|[\s·,)])/g,'$1 ml'],[/(\d+) з (\d+) склянок/g,'$1 of $2 glasses'],[/(\d+) вправ/g,'$1 exercises'],[/(\d) хв(?=$|[\s·,)])/g,'$1 min'],[/кг об’єм/g,'kg volume'],[/кг з початку/g,'kg since start'],[/(\d) кг/g,'$1 kg'],[/(\d) т$/g,'$1 t'],[/(\d) л(?=$|[\s·,)])/g,'$1 L'],[/(\d) г(?=$|[\s·,)\/])/g,'$1 g'],[/(^|[\s·])Б (?=[\d-])/g,'$1P '],[/(^|[\s·])Ж (?=[\d-])/g,'$1F '],[/(^|[\s·])В (?=[\d-])/g,'$1C '],[/ккал/g,'kcal'],[/Минулого разу:/g,'Last time:'],[/^норма /,'goal '],[/^Додано: /,'Added: '],[/^Повторити: /,'Repeat: '],[/· моє/g,'· mine'],[/^авто: /,'auto: '],[/^Спалив (\d+) ккал/,'Burned $1 kcal'],[/Клітковина /g,'Fibre '],[/ Цукор /g,' Sugar '],[/ Сіль /g,' Salt '],[/(^|\s)до (?=\d)/g,'$1max '],[/^Помилка: /,'Error: '],[/^Знайдено: /,'Found: '],
 [/(\d) шт\b|(\d) шт$/g,(m,a,b)=>(a||b)+' pc'],[/(\d) скибка/g,'$1 slice'],[/(\d) порція/g,'$1 serving'],[/(\d) склянка/g,'$1 glass'],[/(\d) шматок/g,'$1 piece'],[/(\d) ст\.л\./g,'$1 tbsp'],[/(\d) ч\.л\./g,'$1 tsp'],[/(\d) тарілка/g,'$1 bowl'],[/(\d) чашка/g,'$1 cup'],[/(\d) банка/g,'$1 can'],[/(\d) пляшка/g,'$1 bottle'],[/(\d) скуп/g,'$1 scoop'],[/(\d) келих/g,'$1 glass'],[/(\d) чарка/g,'$1 shot'],[/(\d) шт(?=\s|$)/g,'$1 pc']];
 function trText(t){const k=t.trim();if(!k)return t;if(UI[k])return t.replace(k,UI[k]);let o=t;for(const[r,v]of PART)o=o.replace(r,v);return o}
 function trNode(n){
@@ -472,7 +472,7 @@ function vSet(){
   <div class="sec-t">Дані</div>
   <div class="card"><div class="sync" id="sync">${syncHTML()}</div>
   <button class="btn dang w" style="margin-top:12px" data-reset="1">${resetArm?'Точно? Натисни ще раз — все зітреться':'Стерти всі дані'}</button></div>
-  <div class="hint" style="text-align:center;margin-top:16px">Форма 2.1</div>`;
+  <div class="hint" style="text-align:center;margin-top:16px">Форма 2.2</div>`;
 }
 
 // ---------- шторка ----------
@@ -487,18 +487,32 @@ let FM='b',FT='find',P=null,AIres=[],aiCtl=null,sampleFn=undefined;
 let GK='';try{GK=localStorage.getItem('forma.gkey')||''}catch(e){}
 const gkey=()=>GK;
 function setGkey(k){GK=k;try{k?localStorage.setItem('forma.gkey',k):localStorage.removeItem('forma.gkey')}catch(e){}}
+const GMODELS=[['gemini-3.5-flash-lite',{thinkingLevel:'minimal'}],['gemini-3.1-flash-lite',{thinkingLevel:'minimal'}],['gemini-flash-lite-latest',null],['gemini-3.6-flash',{thinkingLevel:'minimal'}],['gemini-3.5-flash',{thinkingLevel:'minimal'}],['gemini-3.8-flash',{thinkingLevel:'low'}],['gemini-flash-latest',null],['gemini-2.5-flash-lite',null],['gemini-2.5-flash',{thinkingBudget:0}]];
+const AICACHE={};
 async function gemini(prompt,opts){
+  if(AICACHE[prompt])return{text:AICACHE[prompt]};
+  let best='';try{best=localStorage.getItem('forma.gmodel')||''}catch(e){}
+  const list=[...GMODELS].sort((a,b)=>(b[0]===best)-(a[0]===best));
   let last=null;
-  for(const m of ['gemini-flash-latest','gemini-3.6-flash','gemini-3.5-flash','gemini-3.7-flash','gemini-flash-lite-latest','gemini-3.5-flash-lite','gemini-2.5-flash','gemini-2.5-flash-lite']){
-    let r;try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent',{method:'POST',signal:opts&&opts.signal,headers:{'Content-Type':'application/json','x-goog-api-key':GK},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.2,responseMimeType:'application/json'}})})}
-    catch(e){if(e&&e.name==='AbortError')throw e;throw{code:'offline'}}
+  for(const[m,th]of list){
+    if(opts&&opts.signal&&opts.signal.aborted)throw{name:'AbortError'};
+    const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),15000);
+    const onAb=()=>ctl.abort();if(opts&&opts.signal)opts.signal.addEventListener('abort',onAb);
+    const gc={temperature:0.2,responseMimeType:'application/json',maxOutputTokens:1200};if(th)gc.thinkingConfig=th;
+    let r;
+    try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent',{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json','x-goog-api-key':GK},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gc})})}
+    catch(e){clearTimeout(tm);if(opts&&opts.signal&&opts.signal.aborted)throw{name:'AbortError'};if(ctl.signal.aborted){last={code:'busy'};continue}throw{code:'offline'}}
+    finally{if(opts&&opts.signal)opts.signal.removeEventListener('abort',onAb)}
+    clearTimeout(tm);
     if(!r.ok){let msg='';try{const j=await r.json();msg=(j.error&&(j.error.message||j.error.status))||''}catch(e){}
       last={code:r.status===429?'rate_limited':'api',msg:'HTTP '+r.status+(msg?': '+msg:'')};
       if(r.status>=500)last.code='busy';
       if(/API_KEY_INVALID|API key not valid/i.test(msg)){last.code='bad_key';throw last}
       if([400,401,403,404,429].includes(r.status)||r.status>=500)continue;throw last}
-    const j=await r.json();const t=(j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[]).map(p=>p.text||'').join('');
-    return{text:t};
+    const j=await r.json();const t=(j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[]).filter(p=>!p.thought).map(p=>p.text||'').join('');
+    if(!t.trim()){last={code:'err'};continue}
+    try{localStorage.setItem('forma.gmodel',m)}catch(e){}
+    AICACHE[prompt]=t;return{text:t};
   }
   throw last||{code:'err'};
 }
@@ -682,7 +696,7 @@ async function runAI(){
   const txt=$('#aiT').value.trim();if(!txt){toast('Опиши, що з’їв');return}
   const s=await getAI();const out=$('#aiR'),btn=$('#aiB');
   if(!s){out.innerHTML='<div class="empty">'+(window.claude?'ШІ тут недоступний.':'Встав ключ Gemini в Налаштуваннях.')+'</div>';return}
-  btn.disabled=true;btn.textContent='Рахую…';out.innerHTML='';
+  btn.disabled=true;btn.textContent='Рахую…';const t0=Date.now();const tick=setInterval(()=>{if(btn.isConnected)btn.textContent='Рахую… '+Math.round((Date.now()-t0)/1000)+' с';else clearInterval(tick)},1000);out.innerHTML='';
   aiCtl&&aiCtl.abort();aiCtl=new AbortController();
   const prompt=LANG==='en'?`You are a nutritionist. The user described what they ate. Split it into separate foods or dishes; for each, estimate a realistic portion weight in grams and the calories and macros for that portion. Reply ONLY with a JSON array, no explanations, in the format: [{"n":"name in English","g":grams,"k":kcal,"p":protein_g,"f":fat_g,"c":carbs_g,"fb":fibre_g,"sg":sugar_g,"sl":salt_g}]. For drinks (milk, juice, coffee, tea, soda, alcohol, etc.) put millilitres in g and add "l":true. Numbers without units.\nDescription: ${txt}`:`Ти нутриціолог. Користувач описав, що з'їв. Розбий опис на окремі продукти або страви, для кожного оціни реалістичну вагу порції в грамах і калорійність та БЖВ саме на цю порцію (типові українські порції). Відповідай ТІЛЬКИ JSON-масивом без пояснень, у форматі: [{"n":"назва українською","g":грами,"k":ккал,"p":білки_г,"f":жири_г,"c":вуглеводи_г,"fb":клітковина_г,"sg":цукор_г,"sl":сіль_г}]. Для напоїв (молоко, сік, кава, чай, газування, алкоголь тощо) у полі g вкажи мілілітри і додай "l":true. Числа — без одиниць.\nОпис: ${txt}`;
   try{
@@ -696,7 +710,7 @@ async function runAI(){
   }catch(e){
     if(e&&e.name==='AbortError')return;
     out.innerHTML=`<div class="empty">${e&&e.code==='busy'?'Сервери Gemini зараз перевантажені, спробуй ще раз за хвилину.':e&&e.code==='rate_limited'?'Забагато запитів, спробуй за хвилину.':e&&e.code==='not_granted'?'Доступ до ШІ не надано.':e&&e.code==='bad_key'?'Ключ не підходить — перевір його в Налаштуваннях.':e&&e.code==='offline'?'Немає інтернету.':e&&e.code==='api'?'Помилка: '+esc(String(e.msg).slice(0,220)):'Не вийшло порахувати, спробуй ще раз.'}</div>`;
-  }finally{if(btn){btn.disabled=false;btn.textContent='Порахувати'}}
+  }finally{clearInterval(tick);if(btn){btn.disabled=false;btn.textContent='Порахувати'}}
 }
 
 window.forBack=()=>{if(!sheet.classList.contains('hidden')){closeSheet();return true}if(tab!=='today'){tab='today';render();return true}return false};
