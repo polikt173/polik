@@ -172,6 +172,19 @@ nav .fab svg{width:26px;height:26px}
 .rep b{display:block;font-family:Archivo,system-ui,sans-serif;font-size:17px}.rep .sm{display:block}.rep>svg{width:20px;height:20px;color:var(--mut);flex:none}
 .tempty{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;margin-top:10px;border-radius:16px;border:1.5px dashed #3a3b42;color:var(--mut);font-weight:700}
 .tempty svg{width:18px;height:18px}
+.mrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 0;border-top:1px solid var(--line)}
+.mrow:first-child{border-top:0}.mrow b{display:block;font-size:15px}.mrow .sm{display:block}
+.mt{font-family:Archivo,system-ui,sans-serif;font-weight:700;font-size:15px;min-width:46px;color:var(--ink);font-variant-numeric:tabular-nums}
+.chk{width:30px;height:30px;border-radius:50%;border:2px solid #3a3b42;display:grid;place-items:center;flex:none;transition:all .25s var(--ease)}
+.chk svg{width:16px;height:16px;opacity:0;transform:scale(.4);transition:all .25s var(--ease);color:#fff}
+.mrow.done .chk{background:var(--m1);border-color:var(--m1)}.mrow.done .chk svg{opacity:1;transform:none}
+.mrow.done b{text-decoration:line-through;color:var(--mut)}
+.rdot{width:10px;height:10px;border-radius:50%;flex:none}
+.tog{width:44px;height:26px;border-radius:999px;background:#3a3b42;position:relative;flex:none}
+.tog i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .25s var(--ease)}
+.tog.on{background:var(--ok)}.tog.on i{transform:translateX(18px)}
+.nbar{display:flex;align-items:center;gap:12px;border-color:rgba(255,176,59,.3)}.nbar .mic{color:#fff}.nbar .mic svg{width:22px;height:22px}
+.inf{padding:8px 0;border-top:1px solid var(--line)}.inf:first-child{border-top:0}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -193,7 +206,7 @@ const toDate=k=>{const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)}
 const addDays=(k,n)=>{const d=toDate(k);d.setDate(d.getDate()+n);return dkey(d)};
 const fmtD=k=>toDate(k).toLocaleDateString(loc(),{weekday:'short',day:'numeric',month:'short'});
 const nid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
-const I={
+const I={pill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8.5" width="18" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M9.5 9.5l5 5"/></svg>',bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg>',edit:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>',check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
 gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
 home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 8 8"/></svg>',
 gym:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>',
@@ -247,7 +260,7 @@ let LANG='uk';try{LANG=localStorage.getItem('forma.lang')||'uk'}catch(e){}
 const EXEN={'Присідання зі штангою':'Barbell squat','Жим лежачи':'Bench press','Тяга штанги в нахилі':'Bent-over row','Жим гантелей сидячи':'Seated dumbbell press','Планка':'Plank','Жим гантелей на похилій':'Incline dumbbell press','Розведення гантелей':'Dumbbell fly','Віджимання на брусах':'Dips','Французький жим':'Skull crusher','Підтягування':'Pull-ups','Тяга верхнього блоку':'Lat pulldown','Тяга гантелі однією рукою':'One-arm dumbbell row','Підйом штанги на біцепс':'Barbell curl','Румунська тяга':'Romanian deadlift','Жим ногами':'Leg press','Випади з гантелями':'Dumbbell lunges','Жим штанги стоячи':'Overhead press','Махи гантелями в сторони':'Lateral raises','Віджимання':'Push-ups','Присідання':'Squats','Випади':'Lunges','Скручування':'Crunches','Берпі':'Burpees','Біг':'Running','Станова тяга':'Deadlift','Жим гантелей лежачи':'Dumbbell bench press','Кросовер':'Cable crossover','Пуловер':'Pullover','Шраги':'Shrugs','Розгинання ніг':'Leg extension','Згинання ніг':'Leg curl','Підйом на носки':'Calf raises','Молотки':'Hammer curls','Розгинання на блоці':'Triceps pushdown','Скакалка':'Jump rope','Велотренажер':'Exercise bike','Ходьба':'Walking','Плавання':'Swimming','Футбол':'Football',
 'Груди + трицепс':'Chest + triceps','Спина + біцепс':'Back + biceps','Ноги + плечі':'Legs + shoulders','Вдома без заліза':'Home, no equipment','Кардіо':'Cardio'};
 const tx=n=>LANG==='en'&&EXEN[n]||n;
-const UI={'Повторити останнє':'Repeat last','Пусте тренування':'Empty workout','Доброї ночі':'Good night','Доброго ранку':'Good morning','Доброго дня':'Good afternoon','Доброго вечора':'Good evening','Минулий день':'Past day','Майбутній день':'Future day','Ще нічого':'Nothing yet','Порада дня':'Tip of the day','Ккал':'Kcal','Норма білка виконана!':'Protein goal reached!','Норма води виконана!':'Water goal reached!','Норма клітковини виконана!':'Fibre goal reached!','Тренування збережено!':'Workout saved!','+250 мл':'+250 ml','Білок у кожному прийомі їжі допомагає довше не відчувати голоду.':'Protein in every meal keeps you full longer.','Склянка води перед їжею — простий спосіб не переїсти.':'A glass of water before a meal is an easy way not to overeat.','Олія на сковорідці — це ~90 ккал на столову ложку. Рахуй її теж.':'Pan oil is ~90 kcal per tablespoon. Count it too.','Овочі на половину тарілки — багато клітковини і мало калорій.':'Fill half the plate with veg — lots of fibre, few calories.','Сон 7–9 годин так само важливий для форми, як і треня.':'7–9 hours of sleep matter as much as training.','Солодкі напої — найпростіші «невидимі» калорії за день.':'Sugary drinks are the easiest “invisible” calories.','Зважуй їжу кілька днів — і почнеш бачити порції на око.':'Weigh food for a few days and you’ll learn to eyeball portions.','Прогрес у залі — це більше повторів або ваги, ніж минулого разу.':'Gym progress means more reps or weight than last time.','Перекус з білком (сир, йогурт, яйце) краще, ніж печиво.':'A protein snack (cottage cheese, yogurt, egg) beats cookies.','Не зривайся через один «поганий» день — дивись на тиждень загалом.':'One “bad” day doesn’t matter — look at the whole week.','Ходьба 8–10 тисяч кроків спалює більше, ніж здається.':'Walking 8–10k steps burns more than you think.','Солоне затримує воду — вага на ранок може скакати, це нормально.':'Salty food retains water — morning weight can jump, that’s normal.','Сьогодні':'Today','Треня':'Workouts','Прогрес':'Progress','Профіль':'Profile','Налашт.':'Settings','Налаштування':'Settings',
+const UI={'Ліки':'Meds','Ліки й добавки':'Meds & supplements','Спортпіт':'Sports nutrition','Вітаміни':'Vitamins','Неважливо':'Any time','До їжі':'Before meal','Під час їжі':'With meal','Після їжі':'After meal','Натщесерце':'Empty stomach','Їжа':'Food','Інше':'Other','Увімкни сповіщення':'Turn on notifications','Щоб нагадування приходили на телефон.':'So reminders reach your phone.','Увімкнути':'Turn on','Додай ліки чи добавки — тут з’явиться список на день.':'Add meds or supplements to see today’s list here.','Мої ліки й добавки':'My meds & supplements','Довідка':'Info','Довідка ШІ':'AI info','Додати ліки чи добавку':'Add med or supplement','Нагадування':'Reminders','Нагадай собі поснідати, випити воду чи ліки.':'Remind yourself to eat, drink water or take meds.','Своє нагадування':'Custom reminder','Сповіщення на телефон працюють у APK-версії. Тут нагадування видно тільки в списку.':'Phone notifications work in the APK. Here reminders are only shown in the list.','Це не медична порада. Приймай ліки так, як призначив лікар, і читай інструкцію.':'This is not medical advice. Take medicines as prescribed and read the leaflet.','Нові ліки / добавка':'New med / supplement','Редагувати':'Edit','Швидко додати спортпіт чи вітаміни:':'Quick add a supplement:','Напр. Метформін, Омега-3':'E.g. Metformin, Omega-3','Тип':'Type','Доза (як призначено)':'Dose (as prescribed)','Напр. 1 таблетка 500 мг':'E.g. 1 tablet 500 mg','Коли приймати':'When to take','Прибрати час':'Remove time','Ще час':'Add time','Відносно їжі':'Relative to food','Нотатка':'Note','Необов’язково':'Optional','Для чого':'What it’s for','Як приймати':'How to take','Часті побічні ефекти':'Common side effects','З чим не поєднувати':'Do not combine with','Коли до лікаря':'When to see a doctor','Оновити довідку':'Refresh info','Складаю довідку…':'Preparing info…','Не вдалося знайти довідку для цієї назви.':'Couldn’t find info for this name.','Не вийшло скласти довідку, спробуй ще раз.':'Couldn’t prepare info, try again.','Нове нагадування':'New reminder','Час':'Time','Текст':'Text','Напр. Час снідати':'E.g. Breakfast time','Час снідати':'Breakfast time','Час обідати':'Lunch time','Час вечеряти':'Dinner time','Випий склянку води':'Drink a glass of water','Нагадування додано':'Reminder added','Збережено':'Saved','Вкажи назву':'Enter a name','Усе на сьогодні прийнято!':'All taken for today!','Профіль':'Profile','Увімк./вимк.':'On/off','Повторити останнє':'Repeat last','Пусте тренування':'Empty workout','Доброї ночі':'Good night','Доброго ранку':'Good morning','Доброго дня':'Good afternoon','Доброго вечора':'Good evening','Минулий день':'Past day','Майбутній день':'Future day','Ще нічого':'Nothing yet','Порада дня':'Tip of the day','Ккал':'Kcal','Норма білка виконана!':'Protein goal reached!','Норма води виконана!':'Water goal reached!','Норма клітковини виконана!':'Fibre goal reached!','Тренування збережено!':'Workout saved!','+250 мл':'+250 ml','Білок у кожному прийомі їжі допомагає довше не відчувати голоду.':'Protein in every meal keeps you full longer.','Склянка води перед їжею — простий спосіб не переїсти.':'A glass of water before a meal is an easy way not to overeat.','Олія на сковорідці — це ~90 ккал на столову ложку. Рахуй її теж.':'Pan oil is ~90 kcal per tablespoon. Count it too.','Овочі на половину тарілки — багато клітковини і мало калорій.':'Fill half the plate with veg — lots of fibre, few calories.','Сон 7–9 годин так само важливий для форми, як і треня.':'7–9 hours of sleep matter as much as training.','Солодкі напої — найпростіші «невидимі» калорії за день.':'Sugary drinks are the easiest “invisible” calories.','Зважуй їжу кілька днів — і почнеш бачити порції на око.':'Weigh food for a few days and you’ll learn to eyeball portions.','Прогрес у залі — це більше повторів або ваги, ніж минулого разу.':'Gym progress means more reps or weight than last time.','Перекус з білком (сир, йогурт, яйце) краще, ніж печиво.':'A protein snack (cottage cheese, yogurt, egg) beats cookies.','Не зривайся через один «поганий» день — дивись на тиждень загалом.':'One “bad” day doesn’t matter — look at the whole week.','Ходьба 8–10 тисяч кроків спалює більше, ніж здається.':'Walking 8–10k steps burns more than you think.','Солоне затримує воду — вага на ранок може скакати, це нормально.':'Salty food retains water — morning weight can jump, that’s normal.','Сьогодні':'Today','Треня':'Workouts','Прогрес':'Progress','Профіль':'Profile','Налашт.':'Settings','Налаштування':'Settings',
 'Сніданок':'Breakfast','Обід':'Lunch','Вечеря':'Dinner','Перекуси':'Snacks','Додати':'Add','Видалити':'Delete','Тренування':'Workout','Заповни профіль':'Fill in your profile','Щоб порахувати твою норму калорій і БЖВ.':'To calculate your calorie and macro goals.','Заповнити':'Fill in','Попередній день':'Previous day','Наступний день':'Next day',
 'перебір':'over','залишилось':'left','Норма':'Goal','З’їв':'Eaten','Спалив':'Burned','Білки':'Protein','Жири':'Fat','Вугл.':'Carbs','Вода':'Water','Мінус склянка':'Minus glass','Плюс склянка':'Plus glass','Сьогодні ще без трені':'No workout today yet','Записати тренування':'Log workout','швидкий запис':'quick entry',
 'трень за 7 днів':'workouts in 7 days','об’єм за тиждень':'volume this week','хвилин':'minutes','Почати тренування':'Start workout','Історія':'History','Тут з’являться твої тренування':'Your workouts will show up here','Рекорди':'Records','Запиши вправи з вагою — тут будуть твої максимуми':'Log exercises with weight to see your personal bests',
@@ -267,9 +280,9 @@ const UI={'Повторити останнє':'Repeat last','Пусте трен
 'Ключ закороткий':'Key is too short','Ключ збережено':'Key saved','Ключ видалено':'Key deleted','Вкажи вагу':'Enter the weight','Додано':'Added','Назва і ккал обов’язкові':'Name and kcal are required','Вкажи ккал':'Enter kcal','Нічого не вибрано':'Nothing selected','Вкажи вагу в кг':'Enter weight in kg','Вагу записано':'Weight saved','Тренування збережено':'Workout saved','Видалено':'Deleted','Дані стерто':'Data erased','Опиши, що з’їв':'Describe what you ate','Сховище заповнене':'Storage is full',
 'Не вдалося розібрати. Спробуй написати простіше.':'Couldn’t parse that. Try writing it more simply.','Забагато запитів, спробуй за хвилину.':'Too many requests, try again in a minute.','Сервери Gemini зараз перевантажені, спробуй ще раз за хвилину.':'Gemini servers are overloaded right now, try again in a minute.','Доступ до ШІ не надано.':'AI access not granted.','Ключ не підходить — перевір його в Налаштуваннях.':'The key doesn’t work — check it in Settings.','Немає інтернету.':'No internet connection.','Не вийшло порахувати, спробуй ще раз.':'Couldn’t count, try again.',
 'Сканувати камерою':'Scan with camera','Вмикаю камеру…':'Starting camera…','Зупинити':'Stop','Наведи камеру на штрих-код':'Point the camera at the barcode','Або введи цифри штрих-коду':'Or type the barcode digits','Знайти':'Find','Шукаю…':'Searching…','Продукт не знайдено в базі. Додай його через «Своє».':'Product not found. Add it via “Custom”.','Немає доступу до камери. Дозволь камеру для програми або введи код вручну.':'No camera access. Allow the camera for the app or type the code.','Не вдалося знайти — перевір інтернет.':'Lookup failed — check your internet.','Сканер тут недоступний.':'Scanner is unavailable here.','Дані про продукт з Open Food Facts — перевір цифри на упаковці.':'Product data from Open Food Facts — check the numbers on the pack.',
-'Форма 2.2':'Forma 2.2','Тренування ':'Workout','Перекус':'Snack','Вправа':'Exercise'};
+'Форма 2.3':'Forma 2.3','Тренування ':'Workout','Перекус':'Snack','Вправа':'Exercise'};
 for(const f of FOODS)UI[f.n]=f.en;for(const k in EXEN)UI[k]=EXEN[k];
-const PART=[[/^Рахую… (\d+) с$/,'Counting… $1 s'],[/([\d.]+) л з ([\d.]+) л/g,'$1 of $2 L'],[/(\d+) скл\. води/g,'$1 glasses of water'],[/ л з напоїв/g,' L from drinks'],[/^(\d+) вправи?$/,'$1 exercises'],[/на 100 г/g,'per 100 g'],[/на 100 мл/g,'per 100 ml'],[/(\d) мл(?=$|[\s·,)])/g,'$1 ml'],[/(\d+) з (\d+) склянок/g,'$1 of $2 glasses'],[/(\d+) вправ/g,'$1 exercises'],[/(\d) хв(?=$|[\s·,)])/g,'$1 min'],[/кг об’єм/g,'kg volume'],[/кг з початку/g,'kg since start'],[/(\d) кг/g,'$1 kg'],[/(\d) т$/g,'$1 t'],[/(\d) л(?=$|[\s·,)])/g,'$1 L'],[/(\d) г(?=$|[\s·,)\/])/g,'$1 g'],[/(^|[\s·])Б (?=[\d-])/g,'$1P '],[/(^|[\s·])Ж (?=[\d-])/g,'$1F '],[/(^|[\s·])В (?=[\d-])/g,'$1C '],[/ккал/g,'kcal'],[/Минулого разу:/g,'Last time:'],[/^норма /,'goal '],[/^Додано: /,'Added: '],[/^Повторити: /,'Repeat: '],[/· моє/g,'· mine'],[/^авто: /,'auto: '],[/^Спалив (\d+) ккал/,'Burned $1 kcal'],[/Клітковина /g,'Fibre '],[/ Цукор /g,' Sugar '],[/ Сіль /g,' Salt '],[/(^|\s)до (?=\d)/g,'$1max '],[/^Помилка: /,'Error: '],[/^Знайдено: /,'Found: '],
+const PART=[[/^(.*) · (\d+) з (\d+)$/,'$1 · $2 of $3'],[/^\+ Час снідати /,'+ Breakfast time '],[/^\+ Час обідати /,'+ Lunch time '],[/^\+ Час вечеряти /,'+ Dinner time '],[/^\+ Випий склянку води /,'+ Drink water '],[/^Рахую… (\d+) с$/,'Counting… $1 s'],[/([\d.]+) л з ([\d.]+) л/g,'$1 of $2 L'],[/(\d+) скл\. води/g,'$1 glasses of water'],[/ л з напоїв/g,' L from drinks'],[/^(\d+) вправи?$/,'$1 exercises'],[/на 100 г/g,'per 100 g'],[/на 100 мл/g,'per 100 ml'],[/(\d) мл(?=$|[\s·,)])/g,'$1 ml'],[/(\d+) з (\d+) склянок/g,'$1 of $2 glasses'],[/(\d+) вправ/g,'$1 exercises'],[/(\d) хв(?=$|[\s·,)])/g,'$1 min'],[/кг об’єм/g,'kg volume'],[/кг з початку/g,'kg since start'],[/(\d) кг/g,'$1 kg'],[/(\d) т$/g,'$1 t'],[/(\d) л(?=$|[\s·,)])/g,'$1 L'],[/(\d) г(?=$|[\s·,)\/])/g,'$1 g'],[/(^|[\s·])Б (?=[\d-])/g,'$1P '],[/(^|[\s·])Ж (?=[\d-])/g,'$1F '],[/(^|[\s·])В (?=[\d-])/g,'$1C '],[/ккал/g,'kcal'],[/Минулого разу:/g,'Last time:'],[/^норма /,'goal '],[/^Додано: /,'Added: '],[/^Повторити: /,'Repeat: '],[/· моє/g,'· mine'],[/^авто: /,'auto: '],[/^Спалив (\d+) ккал/,'Burned $1 kcal'],[/Клітковина /g,'Fibre '],[/ Цукор /g,' Sugar '],[/ Сіль /g,' Salt '],[/(^|\s)до (?=\d)/g,'$1max '],[/^Помилка: /,'Error: '],[/^Знайдено: /,'Found: '],
 [/(\d) шт\b|(\d) шт$/g,(m,a,b)=>(a||b)+' pc'],[/(\d) скибка/g,'$1 slice'],[/(\d) порція/g,'$1 serving'],[/(\d) склянка/g,'$1 glass'],[/(\d) шматок/g,'$1 piece'],[/(\d) ст\.л\./g,'$1 tbsp'],[/(\d) ч\.л\./g,'$1 tsp'],[/(\d) тарілка/g,'$1 bowl'],[/(\d) чашка/g,'$1 cup'],[/(\d) банка/g,'$1 can'],[/(\d) пляшка/g,'$1 bottle'],[/(\d) скуп/g,'$1 scoop'],[/(\d) келих/g,'$1 glass'],[/(\d) чарка/g,'$1 shot'],[/(\d) шт(?=\s|$)/g,'$1 pc']];
 function trText(t){const k=t.trim();if(!k)return t;if(UI[k])return t.replace(k,UI[k]);let o=t;for(const[r,v]of PART)o=o.replace(r,v);return o}
 function trNode(n){
@@ -290,15 +303,15 @@ const GOALS=[['lose','Схуднути'],['keep','Тримати вагу'],['ga
 
 // ---------- дані ----------
 const LS='forma.v1';
-let S={profile:{set:false,sex:'m',age:20,h:178,w:75,act:1.55,goal:'keep',water:8,kcal:0},custom:[],weights:[],days:{}};
-try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);S=Object.assign(S,o);S.profile=Object.assign({set:false,sex:'m',age:20,h:178,w:75,act:1.55,goal:'keep',water:8,kcal:0},o.profile||{})}}catch(e){}
-const EMPTY=()=>({food:[],ex:[],water:0});
+let S={profile:{set:false,sex:'m',age:20,h:178,w:75,act:1.55,goal:'keep',water:8,kcal:0},custom:[],weights:[],meds:[],rem:[],days:{}};
+try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);S=Object.assign(S,o);S.meds=S.meds||[];S.rem=S.rem||[];S.profile=Object.assign({set:false,sex:'m',age:20,h:178,w:75,act:1.55,goal:'keep',water:8,kcal:0},o.profile||{})}}catch(e){}
+const EMPTY=()=>({food:[],ex:[],water:0,mt:{}});
 const day=k=>S.days[k]||EMPTY();
 const dayW=k=>S.days[k]||(S.days[k]=EMPTY());
 let coll=null,dirty=new Set(),inflight=new Set(),timer=null,chain=Promise.resolve(),sync='local';
 const saveLocal=()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}};
 function touch(key){saveLocal();if(!coll)return;dirty.add(key);clearTimeout(timer);timer=setTimeout(flush,600)}
-function body(key){if(key==='main')return{profile:S.profile,custom:S.custom,weights:S.weights};const d=S.days[key.slice(2)]||EMPTY();return{food:d.food,ex:d.ex,water:d.water}}
+function body(key){if(key==='main')return{profile:S.profile,custom:S.custom,weights:S.weights,meds:S.meds,rem:S.rem};const d=S.days[key.slice(2)]||EMPTY();return{food:d.food,ex:d.ex,water:d.water,mt:d.mt||{}}}
 function flush(){
   const keys=[...dirty];dirty.clear();
   keys.forEach(k=>{const b=JSON.parse(JSON.stringify(body(k)));inflight.add(k);
@@ -309,8 +322,8 @@ function flush(){
 function applyDocs(docs){
   let ch=false;
   docs.forEach(d=>{const k=d.id;if(dirty.has(k)||inflight.has(k)||!d.exists)return;const v=JSON.parse(JSON.stringify(d.data()||{}));
-    if(k==='main'){const cur=JSON.stringify(body('main'));if(v.profile)S.profile=Object.assign(S.profile,v.profile);S.custom=Array.isArray(v.custom)?v.custom:[];S.weights=Array.isArray(v.weights)?v.weights:[];if(cur!==JSON.stringify(body('main')))ch=true}
-    else if(k.startsWith('d-')){const dk=k.slice(2),cur=JSON.stringify(body(k));S.days[dk]={food:Array.isArray(v.food)?v.food:[],ex:Array.isArray(v.ex)?v.ex:[],water:+v.water||0};if(cur!==JSON.stringify(body(k)))ch=true}});
+    if(k==='main'){const cur=JSON.stringify(body('main'));if(v.profile)S.profile=Object.assign(S.profile,v.profile);S.custom=Array.isArray(v.custom)?v.custom:[];S.weights=Array.isArray(v.weights)?v.weights:[];S.meds=Array.isArray(v.meds)?v.meds:[];S.rem=Array.isArray(v.rem)?v.rem:[];if(cur!==JSON.stringify(body('main')))ch=true}
+    else if(k.startsWith('d-')){const dk=k.slice(2),cur=JSON.stringify(body(k));S.days[dk]={food:Array.isArray(v.food)?v.food:[],ex:Array.isArray(v.ex)?v.ex:[],water:+v.water||0,mt:(v.mt&&typeof v.mt==='object')?v.mt:{}};if(cur!==JSON.stringify(body(k)))ch=true}});
   if(ch)saveLocal();return ch;
 }
 function setSync(s){sync=s;const el=$('#sync');if(el)el.innerHTML=syncHTML()}
@@ -326,7 +339,7 @@ function syncHTML(){const m={local:['','Тільки на цьому прист�
     if(snap.empty){if(S.profile.set||S.weights.length||Object.keys(S.days).length){dirty.add('main');Object.keys(S.days).forEach(k=>{const d=S.days[k];if(d.food.length||d.ex.length||d.water)dirty.add('d-'+k)});flush()}}
     else if(applyDocs(snap.docs))render();
     setSync('ok');
-    coll.onSnapshot(s=>{if(s.metadata.hasPendingWrites)return;if(applyDocs(s.docs))render()},()=>setSync('err'));
+    coll.onSnapshot(s=>{if(s.metadata.hasPendingWrites)return;if(applyDocs(s.docs)){render();syncNative()}},()=>setSync('err'));
   }catch(e){coll=null;setSync('local')}
 })();
 
@@ -348,11 +361,11 @@ const vol=w=>w.ex.reduce((a,e)=>a+e.sets.reduce((b,s)=>b+(+s.r||0)*(+s.w||0),0),
 // ---------- стан UI ----------
 let tab='today',cur=today(),toastT=null;
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,1800)}
-function nav(){const it=[['today','Сьогодні',I.home],['gym','Треня',I.gym],['fab'],['prog','Прогрес',I.chart],['prof','Профіль',I.user]];
-  $('#nav').innerHTML=it.map(a=>a[0]==='fab'?`<button class="fab" aria-label="Додати їжу" data-fab="1"><span>${I.plus}</span></button>`:`<button class="${tab===a[0]||(a[0]==='prof'&&tab==='set')?'on':''}" data-tab="${a[0]}"><span class="p">${a[2]}</span>${a[1]}</button>`).join('')}
+function nav(){const it=[['today','Сьогодні',I.home],['gym','Треня',I.gym],['fab'],['meds','Ліки',I.pill],['prog','Прогрес',I.chart]];
+  $('#nav').innerHTML=it.map(a=>a[0]==='fab'?`<button class="fab" aria-label="Додати їжу" data-fab="1"><span>${I.plus}</span></button>`:`<button class="${tab===a[0]||false?'on':''}" data-tab="${a[0]}"><span class="p">${a[2]}</span>${a[1]}</button>`).join('')}
 let anim=true;const LV={};
 const A=(k,v)=>{k=cur+k;const o=(!anim&&k in LV)?LV[k]:v;LV[k]=v;return o};
-function render(){nav();const v=$('#view');v.innerHTML={today:vToday,gym:vGym,prog:vProg,prof:vProf,set:vSet}[tab]();
+function render(){nav();const v=$('#view');v.innerHTML={today:vToday,gym:vGym,prog:vProg,prof:vProf,set:vSet,meds:vMeds}[tab]();
   if(anim){v.classList.remove('anim');void v.offsetWidth;v.classList.add('anim');[...v.children].forEach((c,i)=>c.style.animationDelay=Math.min(i,8)*45+'ms');anim=false}else v.classList.remove('anim');
   if(tab==='prog')drawCharts();
   const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -383,7 +396,7 @@ function vToday(){
   const tip=TIPS[Math.floor(toDate(cur).getTime()/864e5)%TIPS.length];
   return`<div class="top"><div class="grow"><div class="sm mut">${esc(fmtD(cur))}</div><h1>${cur===today()?greet():(cur<today()?'Минулий день':'Майбутній день')}</h1></div>
   ${st?`<span class="streak" title="Серія"><svg viewBox="0 0 24 24"><path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2.5 1.3-4 2.5-5 0 2 .8 3 2 3.5C11 9 11 5.5 12 2z" fill="url(#fl)"/><defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23b"/><stop offset="1" stop-color="#ff5a36"/></linearGradient></defs></svg><b>${st}</b></span>`:''}
-  <button class="ico" aria-label="Налаштування" data-tab="set">${I.gear}</button></div>
+  <button class="ico" aria-label="Профіль" data-tab="prof">${I.user}</button></div>
   <div class="daynav"><button aria-label="Попередній день" data-day="-1">${I.l}</button><span>${cur===today()?'Сьогодні':esc(fmtD(cur))}</span><button aria-label="Наступний день" data-day="1">${I.r}</button></div>
   ${!S.profile.set?`<div class="banner"><h3>Заповни профіль</h3><div class="sm">Щоб порахувати твою норму калорій і БЖВ.</div><button class="btn" data-tab="prof">Заповнити</button></div>`:''}
   <div class="card hero2"><div class="rings"><svg viewBox="0 0 160 160">${ring(72,12,s.k,T.kcal,'g1',over?'#ff3b30':'#ffb03b',over?'#ff3b30':'#ff5a36')}${ring(57,10,s.p,T.prot,'g2','#7ad0ff','#4d9bff')}${ring(43,8,lq.tot,gml,'g3','#5ef2d6','#22b8cf')}</svg>
@@ -472,8 +485,92 @@ function vSet(){
   <div class="sec-t">Дані</div>
   <div class="card"><div class="sync" id="sync">${syncHTML()}</div>
   <button class="btn dang w" style="margin-top:12px" data-reset="1">${resetArm?'Точно? Натисни ще раз — все зітреться':'Стерти всі дані'}</button></div>
-  <div class="hint" style="text-align:center;margin-top:16px">Форма 2.2</div>`;
+  <div class="hint" style="text-align:center;margin-top:16px">Форма 2.3</div>`;
 }
+
+// ---------- ліки, добавки, нагадування ----------
+const MTYPES=[['med','Ліки','#ff6fa5','#e0457f'],['sport','Спортпіт','#ff7a3d','#e2462b'],['vit','Вітаміни','#34d39e','#1fa37a']];
+const FOODREL=[['any','Неважливо'],['before','До їжі'],['with','Під час їжі'],['after','Після їжі'],['empty','Натщесерце']];
+const RKINDS=[['food','Їжа','#ffb03b'],['water','Вода','#22b8cf'],['med','Ліки','#ff6fa5'],['sport','Треня','#ff7a3d'],['other','Інше','#8b7bff']];
+const MPRESETS=[
+['Креатин моногідрат','sport',{for:'Підвищує силу і робочий об’єм у силових тренуваннях.',how:'Зазвичай 3–5 г на день щодня, час прийому не принциповий. Запивати водою.',side:'Затримка води в м’язах (+0.5–2 кг на вагах), іноді дискомфорт у шлунку.',avoid:'—',doctor:'Якщо є хвороби нирок — спершу порадься з лікарем.'}],
+['Протеїн (сироватковий)','sport',{for:'Допомагає добрати білок за день.',how:'Порція зазвичай 25–30 г порошку, після тренування або між прийомами їжі.',side:'Здуття, газоутворення при непереносимості лактози (тоді краще ізолят).',avoid:'—',doctor:'При хворобах нирок — узгодь кількість білка з лікарем.'}],
+['Кофеїн / передтрен','sport',{for:'Бадьорість і енергія перед тренуванням.',how:'За 30–60 хв до трені, не пізніше ніж за 6 годин до сну.',side:'Тремор, прискорене серцебиття, безсоння, тривожність.',avoid:'Не поєднувати з енергетиками і великою кількістю кави.',doctor:'Проблеми з тиском або серцем — спершу до лікаря.'}],
+['Омега-3','vit',{for:'Підтримка серця, судин і суглобів.',how:'Під час їжі, де є жири.',side:'Рибна відрижка, розлад шлунку.',avoid:'Обережно разом з препаратами, що розріджують кров.',doctor:'Якщо приймаєш антикоагулянти — узгодь з лікарем.'}],
+['Вітамін D3','vit',{for:'Кістки, імунітет; часто бракує взимку.',how:'Під час їжі, що містить жири.',side:'При передозуванні — нудота, слабкість, спрага.',avoid:'Не дублювати з мультивітамінами у великих дозах.',doctor:'Перед великими дозами краще здати аналіз на вітамін D.'}],
+['Магній','vit',{for:'Нервова система, сон, судоми м’язів.',how:'Під час їжі, часто ввечері.',side:'Послаблення кишківника (особливо оксид і цитрат).',avoid:'Розносити в часі з залізом і деякими антибіотиками.',doctor:'При хворобах нирок — тільки з лікарем.'}],
+['Мультивітаміни','vit',{for:'Загальна підтримка при неповному харчуванні.',how:'Зранку під час їжі.',side:'Нудота, якщо пити натщесерце.',avoid:'Не поєднувати з окремими вітамінами у великих дозах.',doctor:'—'}],
+['Цинк','vit',{for:'Імунітет, шкіра.',how:'Під час їжі (натщесерце часто нудить).',side:'Нудота, металевий присмак.',avoid:'Не разом з кальцієм і залізом.',doctor:'Тривалий прийом великих доз — з лікарем.'}],
+['Залізо','vit',{for:'При дефіциті заліза / анемії.',how:'Найкраще натщесерце або з вітаміном C; не запивати молоком, кавою, чаєм.',side:'Закрепи, темний кал, нудота.',avoid:'Не разом з кальцієм, магнієм, молочним.',doctor:'Приймати тільки при підтвердженому дефіциті.'}]];
+const fmtT=t=>String(t||'').slice(0,5);
+const minutes=t=>{const[h,m]=String(t).split(':').map(Number);return(h||0)*60+(m||0)};
+function todayMeds(k){const out=[];S.meds.forEach(m=>(m.times||[]).forEach(t=>out.push({m,t,key:m.id+'@'+t})));const d=day(k);return out.sort((a,b)=>minutes(a.t)-minutes(b.t)).map(x=>({...x,done:!!(d.mt&&d.mt[x.key])}))}
+function syncNative(){
+  if(!window.Native||!Native.setReminders)return;
+  const fr=Object.fromEntries(FOODREL);const list=[];
+  S.meds.forEach(m=>(m.times||[]).forEach(t=>list.push({key:m.id+'@'+t,time:t,title:(LANG==='en'?'Time to take: ':'Час прийняти: ')+m.n,text:[m.dose,m.food&&m.food!=='any'?(LANG==='en'?trText(fr[m.food]):fr[m.food]):''].filter(Boolean).join(' · ')||'Форма'})));
+  S.rem.filter(r=>r.on!==false).forEach(r=>list.push({key:r.id,time:r.t,title:r.text||'Нагадування',text:'Форма'}));
+  try{Native.setReminders(JSON.stringify(list))}catch(e){}
+}
+function notifState(){try{return window.Native&&Native.notifState?Native.notifState():''}catch(e){return''}}
+function vMeds(){
+  const list=todayMeds(cur),done=list.filter(x=>x.done).length,ns=notifState();
+  const typ=Object.fromEntries(MTYPES.map(t=>[t[0],t])),fr=Object.fromEntries(FOODREL),rk=Object.fromEntries(RKINDS.map(r=>[r[0],r]));
+  return`<div class="top"><h1 class="grow">Ліки й добавки</h1><button class="ico" aria-label="Профіль" data-tab="prof">${I.user}</button></div>
+  ${ns==='denied'||ns==='default'?`<div class="card nbar"><span class="mic" style="--m1:#ffb03b;--m2:#ff7a3d">${I.bell}</span><div class="grow"><b>Увімкни сповіщення</b><div class="sm mut">Щоб нагадування приходили на телефон.</div></div><button class="btn" data-notif="1">Увімкнути</button></div>`:''}
+  <div class="sec-t">${cur===today()?'Сьогодні':esc(fmtD(cur))}${list.length?` · ${done} з ${list.length}`:''}</div>
+  <div class="card">${list.length?list.map(x=>{const t=typ[x.m.type]||MTYPES[0];return`<button class="mrow ${x.done?'done':''}" data-mtake="${esc(x.key)}" style="--m1:${t[2]}"><span class="mt">${esc(fmtT(x.t))}</span><span class="grow"><b>${esc(x.m.n)}</b><span class="sm mut">${[esc(x.m.dose||''),x.m.food&&x.m.food!=='any'?fr[x.m.food]:''].filter(Boolean).join(' · ')}</span></span><span class="chk">${I.check}</span></button>`}).join(''):'<div class="empty">Додай ліки чи добавки — тут з’явиться список на день.</div>'}</div>
+  <div class="sec-t row sp" style="display:flex"><span>Мої ліки й добавки</span></div>
+  ${S.meds.map(m=>{const t=typ[m.type]||MTYPES[0];return`<div class="card meal" style="--m1:${t[2]};--m2:${t[3]}"><div class="row"><span class="mic">${I.pill}</span><div class="grow"><h3>${esc(m.n)}</h3><div class="sm mut">${t[1]}${m.dose?' · '+esc(m.dose):''}${(m.times||[]).length?' · '+m.times.map(fmtT).join(', '):''}</div></div><button class="x" aria-label="Редагувати" data-medit="${esc(m.id)}">${I.edit}</button></div>
+    <div class="row" style="margin-top:8px;gap:8px"><button class="chip" data-minfo="${esc(m.id)}">${m.info?'Довідка':'Довідка ШІ'}</button>${m.food&&m.food!=='any'?`<span class="chip" style="opacity:.8">${fr[m.food]}</span>`:''}</div></div>`}).join('')}
+  <button class="tempty" data-madd="1">${I.plus} Додати ліки чи добавку</button>
+  <div class="sec-t">Нагадування</div>
+  <div class="card">${S.rem.length?S.rem.slice().sort((a,b)=>minutes(a.t)-minutes(b.t)).map(r=>{const k=rk[r.kind]||RKINDS[4];return`<div class="item"><span class="rdot" style="background:${k[2]}"></span><span class="mt">${esc(fmtT(r.t))}</span><div class="grow nm">${esc(r.text)}</div><button class="tog ${r.on!==false?'on':''}" aria-label="Увімк./вимк." data-rtog="${esc(r.id)}"><i></i></button><button class="x" aria-label="Редагувати" data-redit="${esc(r.id)}">${I.edit}</button></div>`}).join(''):'<div class="empty">Нагадай собі поснідати, випити воду чи ліки.</div>'}
+  <div class="chips">${[['08:00','Час снідати','food'],['13:00','Час обідати','food'],['19:00','Час вечеряти','food'],['11:00','Випий склянку води','water']].filter(p=>!S.rem.some(r=>r.t===p[0]&&r.text===p[1])).map(p=>`<button class="chip" data-rquick="${p[0]}|${p[1]}|${p[2]}">+ ${p[1]} ${p[0]}</button>`).join('')}</div>
+  <button class="add" data-radd="1">${I.plus} Своє нагадування</button></div>
+  ${window.Native?'':'<div class="hint" style="margin:10px 2px 0">Сповіщення на телефон працюють у APK-версії. Тут нагадування видно тільки в списку.</div>'}
+  <div class="hint" style="margin:12px 2px 0">Це не медична порада. Приймай ліки так, як призначив лікар, і читай інструкцію.</div>`;
+}
+let ME=null;
+function medSheet(m){
+  ME=m?JSON.parse(JSON.stringify(m)):{id:nid(),n:'',type:'med',dose:'',times:['09:00'],food:'any',note:'',info:null};const isNew=!S.meds.some(x=>x.id===ME.id);
+  openSheet(`<div class="row sp"><h2>${isNew?'Нові ліки / добавка':'Редагувати'}</h2><button class="x" aria-label="Закрити" data-close="1">${I.x}</button></div>
+  ${isNew?`<div class="sm mut" style="margin-top:6px">Швидко додати спортпіт чи вітаміни:</div><div class="chips">${MPRESETS.map((p,i)=>`<button class="chip" data-mpre="${i}">${p[0]}</button>`).join('')}</div>`:''}
+  <label for="mN">Назва</label><input id="mN" value="${esc(ME.n)}" placeholder="Напр. Метформін, Омега-3">
+  <label>Тип</label><div class="chips" style="margin-top:0">${MTYPES.map(t=>`<button class="chip ${ME.type===t[0]?'on':''}" data-mtype="${t[0]}">${t[1]}</button>`).join('')}</div>
+  <label for="mD">Доза (як призначено)</label><input id="mD" value="${esc(ME.dose)}" placeholder="Напр. 1 таблетка 500 мг">
+  <label>Коли приймати</label><div id="mTimes">${ME.times.map((t,i)=>`<div class="row" style="margin-top:6px"><input type="time" value="${esc(t)}" data-mtime="${i}"><button class="x" aria-label="Прибрати час" data-mtdel="${i}">${I.x}</button></div>`).join('')}</div>
+  <button class="add" data-mtadd="1">${I.plus} Ще час</button>
+  <label>Відносно їжі</label><div class="chips" style="margin-top:0">${FOODREL.map(f=>`<button class="chip ${ME.food===f[0]?'on':''}" data-mfood="${f[0]}">${f[1]}</button>`).join('')}</div>
+  <label for="mNote">Нотатка</label><input id="mNote" value="${esc(ME.note)}" placeholder="Необов’язково">
+  <button class="btn w" style="margin-top:14px" data-msave="1">Зберегти</button>
+  ${isNew?'':`<button class="btn dang w" style="margin-top:8px" data-mdel="1">Видалити</button>`}`);
+}
+function readMed(){ME.n=$('#mN').value.trim();ME.dose=$('#mD').value.trim();ME.note=$('#mNote').value.trim();sbd.querySelectorAll('[data-mtime]').forEach(e=>ME.times[+e.dataset.mtime]=e.value)}
+function infoHTML(i){const row=(t,v)=>v&&v!=='—'?`<div class="inf"><div class="sm" style="color:var(--amb);font-weight:700">${t}</div><div>${esc(v)}</div></div>`:'';return row('Для чого',i.for)+row('Як приймати',i.how)+row('Часті побічні ефекти',i.side)+row('З чим не поєднувати',i.avoid)+row('Коли до лікаря',i.doctor)}
+async function infoSheet(id){
+  const m=S.meds.find(x=>x.id===id);if(!m)return;
+  const head=`<div class="row sp"><h2>${esc(m.n)}</h2><button class="x" aria-label="Закрити" data-close="1">${I.x}</button></div>`;
+  const foot=`<div class="hint" style="margin-top:12px">${m.infoAI?'Довідку склав ШІ — вона може містити помилки. ':''}Це не медична порада: дотримуйся призначення лікаря та інструкції до препарату.</div>`;
+  if(m.info){openSheet(head+`<div class="card">${infoHTML(m.info)}</div>${m.infoAI?'<button class="btn sec w" style="margin-top:10px" data-minforef="'+esc(m.id)+'">Оновити довідку</button>':''}`+foot);return}
+  openSheet(head+`<div class="card"><div class="empty" id="minfoS">Складаю довідку…</div></div>`+foot);
+  const ai=await getAI();if(!ai){$('#minfoS')&&($('#minfoS').textContent=window.claude?'ШІ тут недоступний.':'Встав ключ Gemini в Налаштуваннях.');return}
+  const prompt=(LANG==='en'?`Give a short reference about the medicine or supplement "${m.n}" in English for a regular person.`:`Дай коротку довідку українською про ліки або добавку «${m.n}» для звичайної людини.`)+` Відповідай ТІЛЬКИ JSON-об’єктом: {"for":"для чого (1–2 речення)","how":"загальні правила прийому щодо їжі та часу доби (без конкретних доз для рецептурних ліків)","side":"найчастіші побічні ефекти через кому","avoid":"з чим не поєднувати, зокрема алкоголь","doctor":"коли терміново звернутися до лікаря"}. Якщо препарат невідомий — {"error":"unknown"}.${LANG==='en'?' Write all values in English.':''}`;
+  try{const r=await ai(prompt,{modelTier:'quick'});const t=r.text||'',a=t.indexOf('{'),z=t.lastIndexOf('}');const o=a>=0&&z>a?JSON.parse(t.slice(a,z+1)):{};
+    if(o.error||!o.for){$('#minfoS')&&($('#minfoS').textContent='Не вдалося знайти довідку для цієї назви.');return}
+    const info={};['for','how','side','avoid','doctor'].forEach(k=>info[k]=String(o[k]||'').slice(0,500));m.info=info;m.infoAI=1;touch('main');infoSheet(id);
+  }catch(e){$('#minfoS')&&($('#minfoS').textContent='Не вийшло скласти довідку, спробуй ще раз.')}
+}
+let RE=null;
+function remSheet(r){
+  RE=r?{...r}:{id:nid(),t:'08:00',text:'',kind:'food',on:true};const isNew=!r;
+  openSheet(`<div class="row sp"><h2>${isNew?'Нове нагадування':'Нагадування'}</h2><button class="x" aria-label="Закрити" data-close="1">${I.x}</button></div>
+  <label for="rT">Час</label><input id="rT" type="time" value="${esc(RE.t)}">
+  <label for="rX">Текст</label><input id="rX" value="${esc(RE.text)}" placeholder="Напр. Час снідати">
+  <label>Тип</label><div class="chips" style="margin-top:0">${RKINDS.map(k=>`<button class="chip ${RE.kind===k[0]?'on':''}" data-rkind="${k[0]}">${k[1]}</button>`).join('')}</div>
+  <button class="btn w" style="margin-top:14px" data-rsave="1">Зберегти</button>${isNew?'':`<button class="btn dang w" style="margin-top:8px" data-rdel="1">Видалити</button>`}`);
+}
+window.addEventListener('notifchange',()=>{if(tab==='meds')render()});
 
 // ---------- шторка ----------
 const sheet=$('#sheet'),sbd=$('#sheetBd');
@@ -637,10 +734,30 @@ document.addEventListener('click',e=>{
   if(ds.lang){if(ds.lang!==LANG){LANG=ds.lang;try{localStorage.setItem('forma.lang',LANG)}catch(e){}location.reload()}return}
   if(ds.scan){if(scanOn)stopScan();else startScan();return}
   if(ds.bcfind){const c=($('#bc').value||'').replace(/\D/g,'');if(c.length<6){toast('Вкажи код');return}lookupCode(c);return}
+  if(ds.mtake){const d=dayW(cur);d.mt=d.mt||{};if(d.mt[ds.mtake])delete d.mt[ds.mtake];else{d.mt[ds.mtake]=1;if(navigator.vibrate)try{navigator.vibrate(20)}catch(e){}}touch('d-'+cur);render();const l=todayMeds(cur);if(l.length&&l.every(x=>x.done)&&d.mt[ds.mtake])celebrate('Усе на сьогодні прийнято!');return}
+  if(ds.madd){medSheet(null);return}
+  if(ds.medit){const m=S.meds.find(x=>x.id===ds.medit);if(m)medSheet(m);return}
+  if(ds.mpre!==undefined){const p=MPRESETS[+ds.mpre];readMed();ME.n=p[0];ME.type=p[1];ME.info=p[2];ME.infoAI=0;medSheet(ME);ME.id=ME.id;return}
+  if(ds.mtype){readMed();ME.type=ds.mtype;sbd.querySelectorAll('[data-mtype]').forEach(x=>x.classList.toggle('on',x.dataset.mtype===ME.type));return}
+  if(ds.mfood){readMed();ME.food=ds.mfood;sbd.querySelectorAll('[data-mfood]').forEach(x=>x.classList.toggle('on',x.dataset.mfood===ME.food));return}
+  if(ds.mtadd){readMed();ME.times.push('20:00');medSheet(ME);return}
+  if(ds.mtdel!==undefined){readMed();ME.times.splice(+ds.mtdel,1);medSheet(ME);return}
+  if(ds.msave){readMed();if(!ME.n){toast('Вкажи назву');return}ME.times=[...new Set(ME.times.filter(Boolean))].sort((a,b)=>minutes(a)-minutes(b));const i=S.meds.findIndex(x=>x.id===ME.id);if(i>=0){if(S.meds[i].n!==ME.n&&ME.infoAI){ME.info=null;ME.infoAI=0}S.meds[i]=ME}else S.meds.push(ME);touch('main');syncNative();toast('Збережено');closeSheet();return}
+  if(ds.mdel){S.meds=S.meds.filter(x=>x.id!==ME.id);touch('main');syncNative();toast('Видалено');closeSheet();return}
+  if(ds.minfo){infoSheet(ds.minfo);return}
+  if(ds.minforef){const m=S.meds.find(x=>x.id===ds.minforef);if(m){m.info=null;infoSheet(m.id)}return}
+  if(ds.radd){remSheet(null);return}
+  if(ds.redit){const r=S.rem.find(x=>x.id===ds.redit);if(r)remSheet(r);return}
+  if(ds.rkind){RE.kind=ds.rkind;sbd.querySelectorAll('[data-rkind]').forEach(x=>x.classList.toggle('on',x.dataset.rkind===RE.kind));return}
+  if(ds.rsave){RE.t=$('#rT').value||'08:00';RE.text=$('#rX').value.trim()||(LANG==='en'?'Reminder':'Нагадування');const i=S.rem.findIndex(x=>x.id===RE.id);if(i>=0)S.rem[i]=RE;else S.rem.push(RE);touch('main');syncNative();toast('Збережено');closeSheet();return}
+  if(ds.rdel){S.rem=S.rem.filter(x=>x.id!==RE.id);touch('main');syncNative();toast('Видалено');closeSheet();return}
+  if(ds.rtog){const r=S.rem.find(x=>x.id===ds.rtog);if(r){r.on=r.on===false;touch('main');syncNative();render()}return}
+  if(ds.rquick){const[t,tx2,k]=ds.rquick.split('|');S.rem.push({id:nid(),t,text:(LANG==='en'?trText(tx2):tx2),kind:k,on:true});touch('main');syncNative();toast('Нагадування додано');render();return}
+  if(ds.notif){try{Native.requestNotif()}catch(e){}return}
   if(ds.fab){const h=new Date().getHours();FM=h<11?'b':h<16?'l':h<21?'d':'s';FT='find';foodSheet();return}
   if(ds.day){cur=addDays(cur,+ds.day);anim=true;render();return}
   if(ds.water){const g0=goalSnap();setTimeout(()=>goalCheck(g0),50);const d=dayW(cur);d.water=Math.max(0,d.water+ +ds.water);touch('d-'+cur);render();const g=document.querySelectorAll('.water i')[Math.max(0,d.water-(+ds.water>0?1:0))];g&&g.classList.add('pop');return}
-  if(ds.reset){if(!resetArm){resetArm=true;render();return}resetArm=false;const keys=Object.keys(S.days);S.days={};S.custom=[];S.weights=[];S.profile={set:false,sex:'m',age:20,h:178,w:75,act:1.55,goal:'keep',water:8,kcal:0};saveLocal();if(coll){keys.forEach(k=>{chain=chain.then(()=>coll.doc('d-'+k).delete()).catch(()=>{})});touch('main')}toast('Дані стерто');tab='today';anim=true;render();return}
+  if(ds.reset){if(!resetArm){resetArm=true;render();return}resetArm=false;const keys=Object.keys(S.days);S.days={};S.custom=[];S.weights=[];S.meds=[];S.rem=[];syncNative();S.profile={set:false,sex:'m',age:20,h:178,w:75,act:1.55,goal:'keep',water:8,kcal:0};saveLocal();if(coll){keys.forEach(k=>{chain=chain.then(()=>coll.doc('d-'+k).delete()).catch(()=>{})});touch('main')}toast('Дані стерто');tab='today';anim=true;render();return}
   if(ds.delfood){const d=dayW(cur);d.food=d.food.filter(f=>f.id!==ds.delfood);touch('d-'+cur);render();return}
   if(ds.addfood){FM=ds.addfood;FT='find';foodSheet();return}
   if(ds.close){closeSheet();return}
@@ -714,6 +831,7 @@ async function runAI(){
 }
 
 window.forBack=()=>{if(!sheet.classList.contains('hidden')){closeSheet();return true}if(tab!=='today'){tab='today';render();return true}return false};
+setTimeout(syncNative,300);
 if(!S.profile.set)tab='today';
 render();
 }

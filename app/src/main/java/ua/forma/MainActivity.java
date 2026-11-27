@@ -2,6 +2,10 @@ package ua.forma;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Intent;
+import android.os.Build;
+import android.provider.Settings;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -33,6 +37,34 @@ public class MainActivity extends Activity {
         @JavascriptInterface public String data() { return prefs.getString("data", ""); }
         @JavascriptInterface public String key() { return prefs.getString("key", ""); }
         @JavascriptInterface public void clear() { prefs.edit().remove("data").remove("key").apply(); }
+    }
+
+    // Міст для сторінки: нагадування і дозвіл на сповіщення
+    class Native {
+        @JavascriptInterface public void setReminders(String json) { Reminders.save(MainActivity.this, json); }
+        @JavascriptInterface public String notifState() {
+            if (Build.VERSION.SDK_INT >= 33) {
+                if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return "granted";
+                return prefs.getBoolean("notifAsked", false) ? "denied" : "default";
+            }
+            return ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).areNotificationsEnabled() ? "granted" : "denied";
+        }
+        @JavascriptInterface public void requestNotif() {
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= 33 && !prefs.getBoolean("notifAsked", false)) {
+                    prefs.edit().putBoolean("notifAsked", true).apply();
+                    requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2);
+                } else {
+                    startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName()));
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (web != null) web.evaluateJavascript("window.dispatchEvent(new Event('notifchange'))", null);
     }
 
     @Override
@@ -83,6 +115,8 @@ public class MainActivity extends Activity {
             }
         });
         web.addJavascriptInterface(new Mig(), "Mig");
+        web.addJavascriptInterface(new Native(), "Native");
+        Reminders.schedule(this);
         setContentView(web);
 
         if (state != null) web.restoreState(state);
@@ -92,6 +126,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
+        if (code == 2) { web.evaluateJavascript("window.dispatchEvent(new Event('notifchange'))", null); return; }
         if (pending != null) {
             if (res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED)
                 pending.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
