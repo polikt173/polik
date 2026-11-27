@@ -41,7 +41,8 @@ public class Reminders {
                 Intent it = new Intent(ctx, ReminderReceiver.class)
                         .putExtra("title", o.optString("title", "Форма"))
                         .putExtra("text", o.optString("text", ""))
-                        .putExtra("code", 1000 + i);
+                        .putExtra("code", 1000 + i)
+                        .putExtra("meal", o.optString("meal", ""));
                 PendingIntent pi = PendingIntent.getBroadcast(ctx, 1000 + i, it,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 boolean exact = Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms();

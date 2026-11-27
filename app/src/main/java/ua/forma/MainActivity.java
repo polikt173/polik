@@ -10,7 +10,12 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.webkit.ValueCallback;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
@@ -26,6 +31,31 @@ public class MainActivity extends Activity {
     private WebView web;
     private PermissionRequest pending;
     private SharedPreferences prefs;
+    private static final int REQ_FILE = 10, REQ_SAVE = 11;
+    private ValueCallback<Uri[]> fileCb;
+    private String pendingText;
+
+    private void saved(boolean ok) {
+        runOnUiThread(() -> web.evaluateJavascript("window.onNativeSaved&&window.onNativeSaved(" + ok + ")", null));
+    }
+
+    @Override
+    protected void onActivityResult(int code, int result, Intent data) {
+        super.onActivityResult(code, result, data);
+        if (code == REQ_FILE) {
+            if (fileCb != null) fileCb.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data));
+            fileCb = null;
+        } else if (code == REQ_SAVE) {
+            String text = pendingText;
+            pendingText = null;
+            if (result != RESULT_OK || data == null || data.getData() == null || text == null) { saved(false); return; }
+            try (OutputStream os = getContentResolver().openOutputStream(data.getData(), "wt")) {
+                if (os == null) throw new Exception("no stream");
+                os.write(text.getBytes(StandardCharsets.UTF_8));
+                saved(true);
+            } catch (Exception e) { saved(false); }
+        }
+    }
 
     // Переносить дані зі старої версії (file://) у нову (https://appassets...)
     class Mig {
@@ -48,6 +78,50 @@ public class MainActivity extends Activity {
                 return prefs.getBoolean("notifAsked", false) ? "denied" : "default";
             }
             return ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).areNotificationsEnabled() ? "granted" : "denied";
+        }
+        @JavascriptInterface public void setWidget(String json) { FormaWidget.save(MainActivity.this, json); }
+        // "2026-11-28|bl" — які прийоми їжі вже записані сьогодні (для розумних нагадувань)
+        @JavascriptInterface public void setLogged(String v) {
+            getSharedPreferences(Reminders.PREFS, MODE_PRIVATE).edit().putString("logged", v).apply();
+        }
+        // Колір панелей телефона під вибрану тему
+        @JavascriptInterface public void setBars(String status, String navBar) {
+            runOnUiThread(() -> {
+                try {
+                    getWindow().setStatusBarColor(Color.parseColor(status));
+                    String n = navBar;
+                    if (n != null && n.startsWith("rgb(")) {
+                        String[] p = n.substring(4, n.length() - 1).split(",");
+                        getWindow().setNavigationBarColor(Color.rgb(Integer.parseInt(p[0].trim()), Integer.parseInt(p[1].trim()), Integer.parseInt(p[2].trim())));
+                    } else if (n != null) getWindow().setNavigationBarColor(Color.parseColor(n));
+                    web.setBackgroundColor(Color.parseColor(status));
+                } catch (Exception ignored) { }
+            });
+        }
+        @JavascriptInterface public boolean batteryOk() {
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            return pm == null || pm.isIgnoringBatteryOptimizations(getPackageName());
+        }
+        @JavascriptInterface public void openBattery() {
+            runOnUiThread(() -> {
+                try { startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)); }
+                catch (Exception e) {
+                    try { startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))); }
+                    catch (Exception ignored) { }
+                }
+            });
+        }
+        // Резервна копія: користувач сам вибирає, куди зберегти файл
+        @JavascriptInterface public void saveFile(String name, String text) {
+            pendingText = text;
+            runOnUiThread(() -> {
+                Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                        .addCategory(Intent.CATEGORY_OPENABLE)
+                        .setType("application/json")
+                        .putExtra(Intent.EXTRA_TITLE, name);
+                try { startActivityForResult(i, REQ_SAVE); }
+                catch (Exception e) { pendingText = null; saved(false); }
+            });
         }
         @JavascriptInterface public void requestNotif() {
             runOnUiThread(() -> {
@@ -96,6 +170,20 @@ public class MainActivity extends Activity {
             @Override
             public Bitmap getDefaultVideoPoster() {
                 return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+            }
+
+            // <input type="file">: фото з галереї і файл резервної копії
+            @Override
+            public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams p) {
+                if (fileCb != null) fileCb.onReceiveValue(null);
+                fileCb = cb;
+                String type = "*/*";
+                String[] acc = p.getAcceptTypes();
+                if (acc != null && acc.length > 0 && acc[0] != null && acc[0].startsWith("image/")) type = "image/*";
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType(type);
+                try { startActivityForResult(Intent.createChooser(i, null), REQ_FILE); }
+                catch (Exception e) { fileCb = null; cb.onReceiveValue(null); return false; }
+                return true;
             }
 
             @Override

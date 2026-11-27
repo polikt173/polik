@@ -8,6 +8,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class ReminderReceiver extends BroadcastReceiver {
     @Override
@@ -16,6 +19,16 @@ public class ReminderReceiver extends BroadcastReceiver {
                 || "android.intent.action.MY_PACKAGE_REPLACED".equals(intent.getAction())) {
             Reminders.schedule(ctx);
             return;
+        }
+        // Розумне нагадування: якщо цей прийом їжі вже записано сьогодні — мовчимо
+        String meal = intent.getStringExtra("meal");
+        if (meal != null && !meal.isEmpty()) {
+            String lg = ctx.getSharedPreferences(Reminders.PREFS, Context.MODE_PRIVATE).getString("logged", "");
+            String today = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+            if (lg.startsWith(today + "|") && lg.substring(today.length() + 1).contains(meal)) {
+                Reminders.schedule(ctx);
+                return;
+            }
         }
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel ch = new NotificationChannel("rem", "Нагадування", NotificationManager.IMPORTANCE_HIGH);
