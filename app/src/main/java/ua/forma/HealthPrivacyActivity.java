@@ -1,0 +1,4 @@
+package ua.forma;
+public class HealthPrivacyActivity extends android.app.Activity {
+ @Override protected void onCreate(android.os.Bundle b){super.onCreate(b);new android.app.AlertDialog.Builder(this).setTitle("Health Connect · Форма").setMessage("Форма читає кроки, середній пульс і тривалість сну лише для відображення у застосунку та віджеті. Дані не передаються ШІ або на сервер. Доступ можна відкликати у Health Connect.\n\nForma reads steps, average heart rate and sleep duration only for its app and widget. Revoke access in Health Connect.").setPositiveButton("OK",(d,v)->finish()).setOnCancelListener(d->finish()).show();}
+}

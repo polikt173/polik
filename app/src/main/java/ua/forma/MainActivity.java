@@ -71,6 +71,9 @@ public class MainActivity extends Activity {
 
     // Міст для сторінки: нагадування і дозвіл на сповіщення
     class Native {
+        @JavascriptInterface public String healthData() { return HealthSync.cached(MainActivity.this).toString(); }
+        @JavascriptInterface public void healthPermissions() { runOnUiThread(() -> HealthSync.permissions(MainActivity.this)); }
+        @JavascriptInterface public void healthRefresh() { runOnUiThread(() -> refreshHealth()); }
         @JavascriptInterface public void setReminders(String json) { Reminders.save(MainActivity.this, json); }
         @JavascriptInterface public String notifState() {
             if (Build.VERSION.SDK_INT >= 33) {
@@ -135,9 +138,13 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void refreshHealth() {
+        HealthSync.refresh(this, () -> { if (web != null) web.evaluateJavascript("window.onHealthChanged&&window.onHealthChanged()", null); });
+    }
     @Override
     protected void onResume() {
         super.onResume();
+        refreshHealth();
         if (web != null) web.evaluateJavascript("window.dispatchEvent(new Event('notifchange'))", null);
     }
 
@@ -229,6 +236,7 @@ public class MainActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
         super.onRequestPermissionsResult(code, perms, res);
+        if (code == 42) { refreshHealth(); return; }
         if (code == 2) { web.evaluateJavascript("window.dispatchEvent(new Event('notifchange'))", null); return; }
         if (code == 1 && pending != null) {
             if (res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED)

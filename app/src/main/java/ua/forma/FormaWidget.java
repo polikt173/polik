@@ -52,7 +52,7 @@ public class FormaWidget extends AppWidgetProvider {
             if(new SimpleDateFormat("yyyy-MM-dd",Locale.US).format(now).equals(o.optString("d"))){k=o.optInt("k");p=o.optInt("p");f=o.optInt("f");carb=o.optInt("c");w=o.optInt("w");ex=o.optInt("ex");}
         }catch(Exception ignored){}
         Locale loc=en?Locale.US:Locale.forLanguageTag("uk-UA");String unit=en?" g":" г";
-        Bitmap b=Bitmap.createBitmap(600,300,Bitmap.Config.ARGB_8888);Canvas c=new Canvas(b);Paint q=new Paint(Paint.ANTI_ALIAS_FLAG);
+        Bitmap b=Bitmap.createBitmap(600,365,Bitmap.Config.ARGB_8888);Canvas c=new Canvas(b);Paint q=new Paint(Paint.ANTI_ALIAS_FLAG);
         text(c,q,"F",12,27,29,ORANGE,true,Paint.Align.LEFT);
         text(c,q,en?"Forma":"Форма",37,27,24,INK,true,Paint.Align.LEFT);
         text(c,q,new SimpleDateFormat("d MMM",loc).format(now),588,24,17,MUT,false,Paint.Align.RIGHT);
@@ -66,6 +66,11 @@ public class FormaWidget extends AppWidgetProvider {
         stat(c,q,en?"Water":"Вода",String.format(loc,"%.1f / %.1f",w/1000f,wt/1000f)+(en?" L":" л"),10,235,188);
         stat(c,q,en?"Workouts":"Тренування",ex>0?(en?"Done: ":"Готово: ")+ex:"—",206,235,188);
         stat(c,q,kt>=k?(en?"Remaining":"Залишилось"):(en?"Over":"Перебір"),Math.abs(kt-k)+(en?" kcal":" ккал"),402,235,188);
+        JSONObject health=HealthSync.cached(ctx);
+        long steps=health.optLong("steps",-1),pulse=health.optLong("pulse",-1),sleep=health.optLong("sleep",-1);
+        stat(c,q,en?"Steps":"Кроки",steps<0?"—":String.valueOf(steps),10,298,188);
+        stat(c,q,en?"Avg heart rate":"Сер. пульс",pulse<0?"—":pulse+(en?" bpm":" уд/хв"),206,298,188);
+        stat(c,q,en?"Sleep / 24h":"Сон / 24 год",sleep<0?"—":(sleep/60)+(en?" h ":" год ")+(sleep%60)+(en?" m":" хв"),402,298,188);
         RemoteViews v=new RemoteViews(ctx.getPackageName(),R.layout.widget);v.setImageViewBitmap(R.id.wImage,b);
         v.setContentDescription(R.id.wImage,(en?"Calories ":"Калорії ")+k+" / "+kt+"; "+(en?"Protein ":"Білки ")+p+" / "+pt+"; "+(en?"Fat ":"Жири ")+f+" / "+ft+"; "+(en?"Carbs ":"Вуглеводи ")+carb+" / "+ct+"; "+(en?"Water ":"Вода ")+w+" ml; "+(en?"Workouts ":"Тренування ")+ex);
         PendingIntent open=PendingIntent.getActivity(ctx,0,new Intent(ctx,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);v.setOnClickPendingIntent(R.id.wRoot,open);return v;
