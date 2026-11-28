@@ -6,8 +6,8 @@ android {
         applicationId 'ua.forma'
         minSdk 26
         targetSdk 34
-        versionCode 21
-        versionName '2.10'
+        versionCode 22
+        versionName '2.11'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
