@@ -6,8 +6,8 @@ android {
         applicationId 'ua.forma'
         minSdk 26
         targetSdk 34
-        versionCode 26
-        versionName '2.15'
+        versionCode 27
+        versionName '2.16'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -17,4 +17,5 @@ android {
 
 dependencies {
     implementation 'androidx.webkit:webkit:1.11.0'
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 }

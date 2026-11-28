@@ -300,6 +300,7 @@ body.calm .bubble{opacity:0}
 .hero2.goal-pulse .rings .in{animation:goalNumber .65s var(--ease)}
 @keyframes goalNumber{0%,100%{transform:scale(1)}45%{transform:scale(1.07)}}
 body.calm .goal-pulse{animation:none!important}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -1629,14 +1630,17 @@ function plateauHTML(){const g=S.profile.goal;if(g==='keep')return'';
 let scanOn=false,zxr=null,zxLoad=null;
 function loadZx(){if(window.ZXing)return Promise.resolve();if(zxLoad)return zxLoad;zxLoad=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='zxing.min.js';sc.onload=ok;sc.onerror=()=>{zxLoad=null;no()};document.head.appendChild(sc)});return zxLoad}
 async function startScan(){
+  if(window.Native&&Native.scanBarcode){stopScan();stopPhoto();try{Native.scanBarcode();return}catch(e){}}
+
   const box=$('#scanBox'),v=$('#scanV'),btn=$('#scanB'),out=$('#bcR');if(!box)return;
   try{await loadZx()}catch(e){out.innerHTML='<div class="empty">Сканер тут недоступний.</div>';return}
-  scanOn=true;box.hidden=false;const sw=$('#scanWait');if(sw)sw.hidden=false;v.onplaying=()=>{const w=$('#scanWait');if(w)w.hidden=true};$('#scanHint').hidden=false;btn.textContent='Зупинити';out.innerHTML='';
+  scanOn=true;box.hidden=false;const sw=$('#scanWait');if(sw)sw.hidden=false;const ready=()=>{const w=$('#scanWait');if(w){w.hidden=true;w.style.display='none'}};v.onplaying=ready;v.onloadeddata=ready;v.oncanplay=ready;sw.style.display='';setTimeout(()=>{if(scanOn&&v.isConnected){if(v.videoWidth)ready();else{stopScan();out.textContent='Камера не запустилася. Перевір дозвіл або введи код вручну.'}}},12000);$('#scanHint').hidden=false;btn.textContent='Зупинити';out.innerHTML='';
   try{
     zxr=new ZXing.BrowserMultiFormatReader();
     await zxr.decodeFromConstraints({video:{facingMode:'environment'}},v,(res)=>{if(res&&scanOn){const c=res.getText();stopScan();if(navigator.vibrate)try{navigator.vibrate(60)}catch(e){}$('#bc')&&($('#bc').value=c);lookupCode(c)}});
   }catch(e){stopScan();const o=$('#bcR');if(o)o.innerHTML='<div class="empty">Немає доступу до камери. Дозволь камеру для програми або введи код вручну.</div>'}
 }
+window.onNativeBarcode=(code)=>{if(!$('#bcR'))return;if(!code){$('#bcR').textContent='Сканування скасовано або камера недоступна. Можна ввести код вручну.';return}$('#bc').value=code;lookupCode(code)};
 function stopScan(){scanOn=false;if(zxr){try{zxr.reset()}catch(e){}zxr=null}const box=$('#scanBox');if(box){box.hidden=true;$('#scanHint').hidden=true;const b=$('#scanB');if(b)b.textContent='Сканувати камерою'}}
 async function lookupCode(code){
 const out=$('#bcR');if(!out)return;code=String(code).trim();const mine=S.custom.find(f=>f.code===code);if(mine){portion(mine);return}out.textContent='Шукаю…';

@@ -42,6 +42,12 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code, result, data);
+        if (code == 49374) {
+            com.google.zxing.integration.android.IntentResult scan = com.google.zxing.integration.android.IntentIntegrator.parseActivityResult(code, result, data);
+            String value = scan == null ? null : scan.getContents();
+            if (web != null) web.evaluateJavascript("window.onNativeBarcode&&window.onNativeBarcode(" + (value == null ? "null" : org.json.JSONObject.quote(value)) + ")", null);
+            return;
+        }
         if (code == REQ_FILE) {
             if (fileCb != null) fileCb.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data));
             fileCb = null;
@@ -71,6 +77,16 @@ public class MainActivity extends Activity {
 
     // Міст для сторінки: нагадування і дозвіл на сповіщення
     class Native {
+        @JavascriptInterface public void scanBarcode() { runOnUiThread(() -> {
+            try {
+                com.google.zxing.integration.android.IntentIntegrator scanner = new com.google.zxing.integration.android.IntentIntegrator(MainActivity.this);
+                scanner.setDesiredBarcodeFormats(com.google.zxing.integration.android.IntentIntegrator.ALL_CODE_TYPES);
+                scanner.setPrompt("Наведи камеру на штрихкод продукту");
+                scanner.setBeepEnabled(false);
+                scanner.setOrientationLocked(false);
+                scanner.initiateScan();
+            } catch (Exception e) { if(web != null) web.evaluateJavascript("window.onNativeBarcode&&window.onNativeBarcode(null)", null); }
+        }); }
         @JavascriptInterface public String healthData() { return HealthSync.cached(MainActivity.this).toString(); }
         @JavascriptInterface public void healthPermissions() { runOnUiThread(() -> HealthSync.permissions(MainActivity.this)); }
         @JavascriptInterface public void healthRefresh() { runOnUiThread(() -> refreshHealth()); }
