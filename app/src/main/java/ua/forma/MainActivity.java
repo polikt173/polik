@@ -154,13 +154,25 @@ public class MainActivity extends Activity {
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setDatabaseEnabled(true);
-        s.setAllowFileAccess(true);
+        s.setAllowFileAccess(false);
+        s.setAllowContentAccess(true);
+        s.setAllowFileAccessFromFileURLs(false);
+        s.setAllowUniversalAccessFromFileURLs(false);
         s.setMediaPlaybackRequiresUserGesture(false);
 
         final WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
                 .build();
         web.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
+                Uri u = r.getUrl();
+                if ("https".equals(u.getScheme()) && "appassets.androidplatform.net".equals(u.getHost()) && u.getPort() == -1 && "/assets/index.html".equals(u.getPath())) return false;
+                if (r.isForMainFrame() && ("https".equals(u.getScheme()) || "http".equals(u.getScheme()))) {
+                    try { startActivity(new Intent(Intent.ACTION_VIEW, u)); } catch (Exception ignored) { }
+                }
+                return true;
+            }
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView v, WebResourceRequest r) {
                 return loader.shouldInterceptRequest(r.getUrl());
@@ -189,6 +201,8 @@ public class MainActivity extends Activity {
             @Override
             public void onPermissionRequest(final PermissionRequest req) {
                 runOnUiThread(() -> {
+                    Uri origin = req.getOrigin();
+                    if (!"https".equals(origin.getScheme()) || !"appassets.androidplatform.net".equals(origin.getHost()) || origin.getPort() != -1) { req.deny(); return; }
                     boolean cam = false;
                     for (String r : req.getResources())
                         if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(r)) cam = true;
@@ -214,8 +228,9 @@ public class MainActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
+        super.onRequestPermissionsResult(code, perms, res);
         if (code == 2) { web.evaluateJavascript("window.dispatchEvent(new Event('notifchange'))", null); return; }
-        if (pending != null) {
+        if (code == 1 && pending != null) {
             if (res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED)
                 pending.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
             else pending.deny();
