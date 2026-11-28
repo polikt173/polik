@@ -996,7 +996,7 @@ function vToday(){
     const act=it.length?`<div class="mact"><button class="lnk" data-setsave="${m}">${I.star} Зберегти як набір</button></div>`:yi.length?`<div class="mact"><button class="lnk" data-yest="${m}">${I.again} Як учора · ${r0(sum(yi).k)} ккал</button></div>`:'';
     return`<div class="card meal" style="--m1:var(--${({b:"breakfast",l:"lunch",d:"dinner",s:"snack"})[m]});--m2:var(--m1)"><div class="row"><span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic[2]}</svg></span>
     <div class="grow"><h3>${n}</h3><div class="sm mut">${it.length?`${r0(t.k)} ккал`:'Ще нічого'}</div></div><button class="plus" aria-label="Додати" data-addfood="${m}">${I.plus}</button></div>
-    ${it.length?`<div class="mlist">${it.map(f=>`<div class="item"><div class="grow"><div class="nm">${esc(f.n)}</div><div class="sm mut">${f.g>0?`${r0(f.g)} ${U(f)} · Б ${r1(f.p)} Ж ${r1(f.f)} В ${r1(f.c)}`:'швидкий запис'}</div></div><span class="k">${r0(f.k)}</span><button class="x" aria-label="Видалити" data-delfood="${esc(f.id)}">${I.x}</button></div>`).join('')}</div>`:''}${act}</div>`}).join('');
+    ${it.length?`<div class="mlist">${it.map(f=>`<div class="item"><div class="grow"><div class="nm" data-editfood="${esc(f.id)}" style="cursor:pointer">${esc(f.n)}</div><div class="sm mut">${f.g>0?`${r0(f.g)} ${U(f)} · Б ${r1(f.p)} Ж ${r1(f.f)} В ${r1(f.c)}`:'швидкий запис'}</div></div><span class="k">${r0(f.k)}</span><button class="x" aria-label="Видалити" data-delfood="${esc(f.id)}">${I.x}</button></div>`).join('')}</div>`:''}${act}</div>`}).join('');
   const miss=d.food.some(f=>f.g>0&&f.fb===undefined),al=alco(d);
   const ws=d.ex.map(w=>`<div class="item" data-editw="${esc(w.id)}" style="cursor:pointer">${workMark(w.n)}<div class="grow"><div class="nm">${esc(w.n||'Тренування')}</div><div class="sm mut">${w.ex.length} вправ · ${r0(w.min)} хв · ${r0(vol(w))} кг об’єм</div></div><span class="k">−${r0(w.kcal)}</span></div>`).join('');
   const lq=liquid(d),gml=wGoal(cur),wp=Math.max(0,Math.min(1,lq.tot/Math.max(1,gml))),wy=6+72*(1-wp);
@@ -1127,9 +1127,9 @@ function labelPhoto(file){const out=$('#lblR');if(!GK){toast('Встав клю�
     const prompt=`На фото етикетка продукту. Знайди таблицю харчової цінності і поверни значення НА 100 г (або на 100 мл). Якщо вказано тільки на порцію — перерахуй на 100 г. Відповідай ТІЛЬКИ JSON: {"n":"коротка назва продукту з упаковки з брендом${LANG==='en'?' (in English)':''}","k":ккал,"p":білки,"f":жири,"c":вуглеводи,"fb":клітковина,"sg":цукри,"sl":сіль,"l":true якщо це напій}. Якщо таблиці не видно — {"error":"no_table"}.`;
     try{const r=await gemini(prompt,{image:data});const t=r.text||'',a=t.indexOf('{'),z=t.lastIndexOf('}');const o=a>=0&&z>a?JSON.parse(t.slice(a,z+1)):{};
       const o2=$('#lblR');if(!o2)return;
-      if(o.error||!num(o.k)){o2.innerHTML='<div class="empty">Не бачу таблиці на фото. Сфотографуй ближче і рівно, щоб цифри було видно.</div>';return}
+      if(o.error||o.k===undefined||o.k===null||o.k===""||!Number.isFinite(Number(o.k))||Number(o.k)<0){o2.innerHTML='<div class="empty">Не бачу таблиці на фото. Сфотографуй ближче і рівно, щоб цифри було видно.</div>';return}
       const set=(id,v)=>{const e=$(id);if(e)e.value=v};if(o.n&&!$('#cN').value.trim())set('#cN',String(o.n).slice(0,80));
-      set('#cK',r1(num(o.k)));set('#cP',r1(num(o.p)));set('#cF',r1(num(o.f)));set('#cC',r1(num(o.c)));set('#cFb',r1(num(o.fb)));set('#cSg',r1(num(o.sg)));set('#cSl',r1(num(o.sl)));
+      set('#cBasis',100);set('#cK',r1(num(o.k)));set('#cP',r1(num(o.p)));set('#cF',r1(num(o.f)));set('#cC',r1(num(o.c)));set('#cFb',r1(num(o.fb)));set('#cSg',r1(num(o.sg)));set('#cSl',r1(num(o.sl)));
       const cl=$('#cL');if(cl)cl.checked=!!o.l;
       o2.innerHTML='<div class="hint" style="color:var(--ok)">Заповнив з етикетки. Звір цифри з упаковкою і натисни «Зберегти і додати».</div>';$('#cN').scrollIntoView({behavior:'smooth',block:'center'});
     }catch(e){const o2=$('#lblR');if(o2)o2.innerHTML=`<div class="empty">${e&&e.code==='offline'?'Немає інтернету.':e&&e.code==='bad_key'?'Ключ не підходить — перевір його в Налаштуваннях.':'Не вийшло прочитати етикетку, спробуй ще раз.'}</div>`}
@@ -1420,11 +1420,11 @@ function foodSheet(){stopScan();stopPhoto();
   const mealChips=`<div class="chips">${MEALS.map(([m,n])=>`<button class="chip ${FM===m?'on':''}" data-fm="${m}">${n}</button>`).join('')}</div>`;
   const tabs=`<div class="tabs">${[['find','Пошук'],['own','Своє'],['ai','ШІ'],['scan','Код']].filter(t=>t[0]!=='scan'||!window.claude).map(t=>`<button class="${FT===t[0]?'on':''}" data-ft="${t[0]}">${t[1]}</button>`).join('')}</div>`;
   let h='';
-  if(FT==='find')h=`<input id="fq" placeholder="Пошук: гречка, яйце, банан…" autocomplete="off"><div class="res" id="fres"></div>`;
+  if(FT==='find')h=`<input id="fq" placeholder="Пошук: гречка, яйце, банан…" autocomplete="off"><button class="btn sec w" style="margin-top:8px" data-onlinefood="1">Шукати в онлайн-базі Open Food Facts</button><div id="onlineR"></div><div class="res" id="fres"></div>`;
   if(FT==='own')h=`<h3 style="margin-top:6px">Мої рецепти</h3><div class="sm mut">Збери страву з продуктів, і програма сама порахує ккал на 100 г.</div>
     ${S.recipes.map(r=>{const f=recFood(r);return`<div class="item"><div class="grow" data-rcpick="${esc(r.id)}" style="cursor:pointer"><div class="nm">${esc(r.n)}</div><div class="sm mut">${r.items.length} інгр. · ${r0(f.k)} ккал на 100 г${f.u?` · порція ${f.u} г`:''}</div></div><button class="x" aria-label="Редагувати" data-rcedit="${esc(r.id)}">${I.edit}</button></div>`}).join('')}
     <button class="btn sec w" style="margin-top:10px" data-rcnew="1">${I.plus} Новий рецепт</button>
-    <h3 style="margin-top:18px">Новий продукт (на 100 г / 100 мл)</h3>${canPhoto()&&GK?`<button class="btn sec w" style="margin-top:8px" data-lblph="1">${I.cam} Заповнити з фото етикетки</button><input type="file" id="lblF" accept="image/*" capture="environment" hidden><div id="lblR"></div>`:''}<label for="cN">Назва</label><input id="cN"><div class="g4"><div><label for="cK">Ккал</label><input id="cK" inputmode="decimal"></div><div><label for="cP">Б</label><input id="cP" inputmode="decimal"></div><div><label for="cF">Ж</label><input id="cF" inputmode="decimal"></div><div><label for="cC">В</label><input id="cC" inputmode="decimal"></div></div><div class="g4" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div><label for="cFb">Клітк.</label><input id="cFb" inputmode="decimal" placeholder="0"></div><div><label for="cSg">Цукор</label><input id="cSg" inputmode="decimal" placeholder="0"></div><div><label for="cSl">Сіль</label><input id="cSl" inputmode="decimal" placeholder="0"></div></div>
+    <h3 style="margin-top:18px">Новий продукт (на 100 г / 100 мл)</h3>${canPhoto()&&GK?`<button class="btn sec w" style="margin-top:8px" data-lblph="1">${I.cam} Заповнити з фото етикетки</button><input type="file" id="lblF" accept="image/*" capture="environment" hidden><div id="lblR"></div>`:''}<label for="cN">Назва</label><input id="cN"><label>На який об’єм або вагу наведені дані?</label><input id="cBasis" inputmode="decimal" value="100"><div class="hint">Наприклад, 250 мл: введи 250 та всі показники на цю порцію.</div><div class="g4"><div><label for="cK">Ккал</label><input id="cK" inputmode="decimal"></div><div><label for="cP">Б</label><input id="cP" inputmode="decimal"></div><div><label for="cF">Ж</label><input id="cF" inputmode="decimal"></div><div><label for="cC">В</label><input id="cC" inputmode="decimal"></div></div><div class="g4" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div><label for="cFb">Клітк.</label><input id="cFb" inputmode="decimal" placeholder="0"></div><div><label for="cSg">Цукор</label><input id="cSg" inputmode="decimal" placeholder="0"></div><div><label for="cSl">Сіль</label><input id="cSl" inputmode="decimal" placeholder="0"></div></div>
     <label class="row" style="margin-top:12px;color:var(--ink);font-size:15px;gap:10px"><input type="checkbox" id="cL" style="width:22px;min-height:22px;flex:none">Це напій (рахувати в мл)</label>
     <button class="btn w" style="margin-top:12px" data-savecustom="1">Зберегти і додати</button>
     <h3 style="margin-top:18px">Швидко: тільки калорії</h3><div class="g2"><div><label for="qN">Що</label><input id="qN" placeholder="Обід в їдальні"></div><div><label for="qK">Ккал</label><input id="qK" inputmode="numeric"></div></div><button class="btn sec w" style="margin-top:10px" data-quick="1">Додати</button>`;
@@ -1450,6 +1450,12 @@ function photoSnap(){const v=$('#phV');if(!v||!v.videoWidth)return;PH=shrink(v,v
 function photoFile(file){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{PH=shrink(im,im.naturalWidth,im.naturalHeight);showPh()};im.onerror=()=>toast('Не вдалося відкрити фото');im.src=r.result};r.readAsDataURL(file)}
 function showPh(){const box=$('#phArea');if(!box||phStream)return;box.innerHTML=PH?`<div class="phbox"><img src="${PH}" alt=""><button class="x" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff" aria-label="Прибрати фото" data-phdel="1">${I.x}</button></div><div class="hint">Можеш дописати, що це і скільки, так ШІ порахує точніше.</div>`:''}
 document.addEventListener('change',e=>{const t=e.target,f=t.files&&t.files[0];if(!f)return;if(t.id==='impF')readImport(f);if(t.id==='phF')photoFile(f);if(t.id==='lblF')labelPhoto(f)});
+const OFFFIELDS='code,product_name,product_name_uk,product_name_en,brands,nutriments,serving_quantity,product_quantity_unit,quantity,categories_tags,last_modified_t';
+function offFood(p){const nu=p.nutriments||{},has=v=>v!==undefined&&v!==null&&v!==''&&Number.isFinite(Number(v));const k=has(nu['energy-kcal_100g'])?+nu['energy-kcal_100g']:has(nu.energy_100g)?+nu.energy_100g/4.184:null;if(k===null||k<0||k>1000)return null;
+const n=p.product_name_uk||p.product_name||p.product_name_en;if(!n)return null;
+return {id:nid(),code:String(p.code||''),n:String(n+(p.brands?' ('+String(p.brands).split(',')[0]+')':'')).slice(0,100),k:r1(k),p:r1(num(nu.proteins_100g)),f:r1(num(nu.fat_100g)),c:r1(num(nu.carbohydrates_100g)),fb:r1(num(nu.fiber_100g)),sg:r1(num(nu.sugars_100g)),sl:r1(num(nu.salt_100g)||num(nu.sodium_100g)*2.5),u:num(p.serving_quantity)||0,un:'порція',source:'off',updated:p.last_modified_t||0,...((String(p.product_quantity_unit||'').toLowerCase()==='ml'||/(ml|мл|cl|л)$/i.test(String(p.quantity||'').trim())||(p.categories_tags||[]).includes('en:beverages'))?{l:1}:{})}}
+function storeFood(f){const old=S.custom.find(x=>(f.code&&x.code===f.code)||foodKey(x.n)===foodKey(f.n));if(old&&old.source==='label'&&f.source!=='label')return old;S.custom=S.custom.filter(x=>x!==old);S.custom.unshift({...f,id:old?old.id:f.id||nid()});touch('main');return S.custom[0]}
+async function onlineFoods(){const q=$('#fq')?.value.trim(),out=$('#onlineR');if(!q||!out){toast('Введи назву продукту');return}out.textContent='Шукаю в онлайн-базі…';try{const url='https://world.openfoodfacts.org/cgi/search.pl?search_simple=1&action=process&json=1&page_size=30&search_terms='+encodeURIComponent(q)+'&fields='+OFFFIELDS;const r=await fetch(url);if(!r.ok)throw Error();const j=await r.json();if(!out.isConnected)return;window._online=(j.products||[]).map(offFood).filter(Boolean);out.innerHTML='<div class="hint">Open Food Facts · перевіряй дані на етикетці</div>'+window._online.map((f,i)=>'<button class="item w" data-onlinepick="'+i+'"><span class="grow">'+esc(f.n)+'</span><b>'+f.k+' ккал</b></button>').join('')+(window._online.length?'':'<div class="empty">Не знайдено продуктів із харчовою цінністю.</div>')}catch(e){out.textContent='Онлайн-база тимчасово недоступна.'}}
 function findList(q){
   q=q.trim().toLowerCase();const el=$('#fres');if(!el)return;
   const cust=recFoods().concat(S.custom.map(f=>({...f,mine:1})));let list;
@@ -1505,7 +1511,7 @@ function portion(f,gKeep){stopScan();
   openSheet(`<div class="row sp"><h2>${esc(f.n)}</h2><button class="x" aria-label="Закрити" data-close="1">${I.x}</button></div>
   <div class="chips">${MEALS.map(([m,n])=>`<button class="chip ${FM===m?'on':''}" data-fm2="${m}">${n}</button>`).join('')}</div>
   ${f.estimate||f.ai?'<div class="hint">Орієнтовні значення. Калорійність залежить від рецепта та складу.</div>':''}
-  ${variants(f)}
+  ${variants(f)}<button class="btn sec w" style="margin-top:8px" data-correctfood="1">Виправити за етикеткою</button>
   <label for="pg">${f.l?'Об’єм, мл':'Вага, г'}</label><input id="pg" inputmode="decimal" value="${r0(g0)}">
   <div class="chips">${f.u&&f.un!=='як минулого'?[1,2,3].map(n=>`<button class="chip" data-g="${f.u*n}">${n} ${esc(f.un)}</button>`).join(''):''}${(f.l?[100,200,250,330,500]:[50,100,150,200,300]).map(g=>`<button class="chip" data-g="${g}">${g} ${U(f)}</button>`).join('')}</div>
   <div class="card" id="pv"></div><button class="btn w" style="margin-top:12px" data-addp="1">Додати</button><button class="btn sec w" style="margin-top:8px" data-back="1">Назад</button>`);
@@ -1633,20 +1639,9 @@ async function startScan(){
 }
 function stopScan(){scanOn=false;if(zxr){try{zxr.reset()}catch(e){}zxr=null}const box=$('#scanBox');if(box){box.hidden=true;$('#scanHint').hidden=true;const b=$('#scanB');if(b)b.textContent='Сканувати камерою'}}
 async function lookupCode(code){
-  const out=$('#bcR');if(!out)return;
-  const mine=S.custom.find(f=>f.code===code);if(mine){portion(mine);return}
-  out.innerHTML='<div class="empty">Шукаю…</div>';
-  try{
-    const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'?fields=product_name,product_name_uk,product_name_en,brands,nutriments,serving_quantity,product_quantity_unit,quantity');
-    const j=r.ok?await r.json():null;const p=j&&j.status===1&&j.product;
-    if(!p){if($('#bcR'))$('#bcR').innerHTML='<div class="empty">Продукт не знайдено в базі. Додай його через «Своє».</div>'+(canPhoto()&&GK?`<button class="btn sec w" style="margin-top:8px" data-lblgo="${esc(code)}">${I.cam} Сфотографувати етикетку</button>`:'');return}
-    const nu=p.nutriments||{};let k=num(nu['energy-kcal_100g']);if(!k&&nu.energy_100g)k=num(nu.energy_100g)/4.184;
-    const name=((LANG==='en'?p.product_name_en:p.product_name_uk)||p.product_name||p.product_name_en||code)+(p.brands?' ('+String(p.brands).split(',')[0]+')':'');
-    if(!k){if($('#bcR'))$('#bcR').innerHTML='<div class="empty">Продукт не знайдено в базі. Додай його через «Своє».</div>'+(canPhoto()&&GK?`<button class="btn sec w" style="margin-top:8px" data-lblgo="${esc(code)}">${I.cam} Сфотографувати етикетку</button>`:'');return}
-    const f={id:nid(),code,n:String(name).slice(0,80),k:r1(k),p:r1(num(nu.proteins_100g)),f:r1(num(nu.fat_100g)),c:r1(num(nu.carbohydrates_100g)),fb:r1(num(nu.fiber_100g)),sg:r1(num(nu.sugars_100g)),sl:r1(num(nu.salt_100g)||num(nu.sodium_100g)*2.5),u:num(p.serving_quantity)||0,un:'порція',...((String(p.product_quantity_unit||'').toLowerCase()==='ml'||/\d\s*(ml|мл|l|л)\b/i.test(String(p.quantity||'')))?{l:1}:{})};
-    S.custom.unshift(f);touch('main');portion(f);
-    const pvh=$('#pv');if(pvh)pvh.insertAdjacentHTML('afterend','<div class="hint">Дані про продукт з Open Food Facts — перевір цифри на упаковці.</div>');
-  }catch(e){if($('#bcR'))$('#bcR').innerHTML='<div class="empty">Не вдалося знайти — перевір інтернет.</div>'}
+const out=$('#bcR');if(!out)return;code=String(code).trim();const mine=S.custom.find(f=>f.code===code);if(mine){portion(mine);return}out.textContent='Шукаю…';
+const fallback=msg=>{if(out.isConnected)out.innerHTML='<div class="empty">'+msg+'</div><button class="btn sec w" data-labelmanual="'+esc(code)+'">Ввести дані з упаковки</button>'+(canPhoto()&&GK?'<button class="btn sec w" data-lblgo="'+esc(code)+'">Фото етикетки</button>':'')};
+try{const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'?fields='+OFFFIELDS);if(!r.ok){fallback(r.status===404?'Штрихкод відсутній у базі.':'Сервіс недоступний.');return}const j=await r.json(),f=j.status===1&&offFood(j.product);if(!f){fallback('Немає харчової цінності для цього коду.');return}if(out.isConnected)portion(storeFood({...f,code}));}catch(e){fallback('Помилка мережі. Перевір інтернет.')}
 }
 
 function celebrate(msg){
@@ -1662,7 +1657,7 @@ function goalCheck(b){if(b.date!==cur||cur!==today())return;const a=goalSnap(),g
 
 // ---------- події ----------
 document.addEventListener('click',e=>{
-  const b=e.target.closest('button,[data-pick],[data-editw],[data-tpl],[data-mset],[data-rcpick],[data-rcadd]');if(!b)return;const ds=b.dataset;
+  const b=e.target.closest('button,[data-editfood],[data-pick],[data-editw],[data-tpl],[data-mset],[data-rcpick],[data-rcadd]');if(!b)return;const ds=b.dataset;
 
   if(ds.smoketoggle){S.profile.smokeEnabled=!S.profile.smokeEnabled;touch('main');render();return}
   if(ds.smokeadd&&S.profile.smokeEnabled){if(cur>today()){toast(smokeTr('Не можна записати майбутнє','Cannot log a future date'));return}smokeEditor();return}
@@ -1689,6 +1684,10 @@ document.addEventListener('click',e=>{
   if(ds.sgretry){suggestSheet(true);return}
   if(ds.sgadd!==undefined){const o=SG&&SG[+ds.sgadd];if(!o)return;const h=new Date().getHours();FM=h<11?'b':h<16?'l':h<21?'d':'s';o.items.forEach(it=>pushFood(it));toast('Додано: '+o.items.length);closeSheet();return}
   if(ds.lblph){const f=$('#lblF');if(f){f.value='';f.click()}return}
+  if(ds.onlinefood){onlineFoods();return}
+  if(ds.onlinepick!==undefined){const f=window._online?.[+ds.onlinepick];if(f)portion(storeFood(f));return}
+  if(ds.labelmanual){FT="own";foodSheet();LBLCODE=ds.labelmanual;return}
+  if(ds.correctfood){const f=P;FT="own";foodSheet();LBLCODE=f.code||"";$("#cN").value=f.n;$("#cL").checked=!!f.l;for(const [id,k] of [["cK","k"],["cP","p"],["cF","f"],["cC","c"],["cFb","fb"],["cSg","sg"],["cSl","sl"]])$("#"+id).value=f[k]??"";return}
   if(ds.lblgo){LBLCODE=ds.lblgo;FT='own';foodSheet();setTimeout(()=>{const f=$('#lblF');if(f){f.value='';f.click()}},50);return}
   if(ds.var!==undefined){const f=window._vl&&window._vl[+ds.var];if(f)portion(f,num($('#pg')&&$('#pg').value));return}
   if(ds.msetdel){S.sets=S.sets.filter(x=>x.id!==ds.msetdel);touch('main');findList($('#fq')?$('#fq').value:'');toast('Видалено');return}
@@ -1739,6 +1738,8 @@ document.addEventListener('click',e=>{
   if(ds.day){cur=addDays(cur,+ds.day);anim=true;render();return}
   if(ds.water){const g0=goalSnap();setTimeout(()=>goalCheck(g0),50);const d=dayW(cur);d.water=Math.max(0,d.water+ +ds.water);touch('d-'+cur);render();const glass=document.querySelector('.glass');if(glass&&!calm()&&+ds.water>0)glass.classList.add('pour');const g=document.querySelectorAll('.water i')[Math.max(0,d.water-(+ds.water>0?1:0))];g&&g.classList.add('pop');return}
   if(ds.reset){if(!resetArm){resetArm=true;render();return}resetArm=false;const keys=Object.keys(S.days);S.days={};S.custom=[];S.weights=[];S.meds=[];S.rem=[];S.sets=[];S.recipes=[];S.review=null;syncNative();S.profile=PDEF();saveLocal();if(coll){keys.forEach(k=>{chain=chain.then(()=>coll.doc('d-'+k).delete()).catch(()=>{})});touch('main')}toast('Дані стерто');tab='today';anim=true;render();return}
+  if(ds.editfood){const f=day(cur).food.find(x=>x.id===ds.editfood);if(!f)return;openSheet('<h2>'+esc(f.n)+'</h2><label>Кількість ('+U(f)+')</label><input id="efG" inputmode="decimal" value="'+f.g+'"><div class="hint">Введи показники на всю записану порцію.</div>'+[['k','Ккал'],['p','Білки'],['f','Жири'],['c','Вуглеводи']].map(([k,n])=>'<label>'+n+'</label><input id="ef'+k+'" inputmode="decimal" value="'+(f[k]||0)+'">').join('')+'<button class="btn w" data-efsave="'+esc(f.id)+'">Зберегти зміни</button><button class="btn sec w" data-close="1">Скасувати</button>');return}
+  if(ds.efsave){const f=dayW(cur).food.find(x=>x.id===ds.efsave);if(!f)return;const g=num($('#efG').value);if(g<=0){toast('Вкажи кількість');return}f.g=g;for(const k of ['k','p','f','c'])f[k]=num($('#ef'+k).value);touch('d-'+cur);closeSheet();return}
   if(ds.delfood){const d=dayW(cur);d.food=d.food.filter(f=>f.id!==ds.delfood);touch('d-'+cur);render();return}
   if(ds.addfood){FM=ds.addfood;FT='find';foodSheet();return}
   if(ds.close){closeSheet();return}
@@ -1751,8 +1752,8 @@ document.addEventListener('click',e=>{
   if(ds.g){$('#pg').value=r0(+ds.g);pv();return}
   if(ds.back){foodSheet();return}
   if(ds.addp){const g=num($('#pg').value);if(g<=0){toast('Вкажи вагу');return}const m=g/100;pushFood({n:P.n,g,...scale(P,m)});toast('Додано');closeSheet();return}
-  if(ds.savecustom){const n=$('#cN').value.trim(),k=num($('#cK').value);if(!n||k<=0){toast('Назва і ккал обов’язкові');return}
-    const f={id:nid(),n,k,p:num($('#cP').value),f:num($('#cF').value),c:num($('#cC').value),fb:num($('#cFb').value),sg:num($('#cSg').value),sl:num($('#cSl').value),...($('#cL').checked?{l:1}:{}),...(LBLCODE?{code:LBLCODE}:{})};LBLCODE='';S.custom.unshift(f);touch('main');portion(f);return}
+  if(ds.savecustom){const n=$('#cN').value.trim(),raw=$('#cK').value.trim(),k=num(raw),basis=num($('#cBasis').value);if(!n||!raw||!Number.isFinite(Number(raw.replace(',','.')))||k<0||basis<=0){toast('Вкажи назву, калорії та вагу або об’єм');return}
+    const f={id:nid(),n,k,p:num($('#cP').value),f:num($('#cF').value),c:num($('#cC').value),fb:num($('#cFb').value),sg:num($('#cSg').value),sl:num($('#cSl').value),...($('#cL').checked?{l:1}:{}),...(LBLCODE?{code:LBLCODE}:{})};LBLCODE='';for(const k of ['k','p','f','c','fb','sg','sl'])f[k]=r1(f[k]*100/basis);f.source='label';f.u=basis;f.un='порція';portion(storeFood(f));return}
   if(ds.quick){const n=$('#qN').value.trim()||'Перекус',k=num($('#qK').value);if(k<=0){toast('Вкажи ккал');return}pushFood({n,g:0,k,p:0,f:0,c:0});toast('Додано');closeSheet();return}
   if(ds.ai){runAI();return}
   if(ds.aiadd){const picks=[...sbd.querySelectorAll('[data-aichk]')].filter(x=>x.checked).map(x=>AIres[+x.dataset.aichk]);if(!picks.length){toast('Нічого не вибрано');return}
