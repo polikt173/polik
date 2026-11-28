@@ -29,3 +29,12 @@ jobs:
           tag_name: v${{ github.run_number }}
           name: Форма v${{ github.run_number }}
           files: Forma.apk
+      - uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/forma-2.5-redesign'
+        with:
+          tag_name: v2.7-preview
+          target_commitish: ${{ github.sha }}
+          name: Форма 2.7 Preview
+          prerelease: true
+          make_latest: false
+          files: Forma.apk
